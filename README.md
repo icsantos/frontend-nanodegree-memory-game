@@ -6,6 +6,7 @@ Udacity Front-End Web Developer Nanodegree Project: Memory Game
 
 * [Project Overview](#project-overview)
 * [Project Specifications](#project-specifications)
+* [Acknowledgements](#acknowledgements)
 * [Contributing](#contributing)
 
 ## Project Overview
@@ -60,9 +61,10 @@ In the real-life game, players flip over cards to locate the pairs that match. T
 | Comments              | Comments are present and effectively explain longer code procedure when necessary. |
 | Code Quality          | Code is formatted with consistent, logical, and easy-to-read formatting as described in the [Udacity JavaScript Style Guide](http://udacity.github.io/frontend-nanodegree-styleguide/javascript.html). |
 
+## Acknowledgements
 
-
-
+-   [Font Awesome](https://fontawesome.com/), for the vector icons
+-   [Hero Patterns](http://www.heropatterns.com/), for the SVG background patterns
 
 ## Contributing
 

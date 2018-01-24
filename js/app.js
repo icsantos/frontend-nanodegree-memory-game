@@ -143,42 +143,43 @@ function makeGameBoard() {
 }
 
 /**
- * if the card is hidden, show it
+ * if the card face is hidden, show it
  * if it's visible, hide it
  */
-function showCard(card) {
+function showCard(card, face) {
   card.classList.toggle('open');
   card.classList.toggle('show');
+  face.classList.toggle('hide');
 }
 
 /**
  * user has clicked on a card
  */
 function cardClicked(evt) {
-  let card;
-
-  // Select the nearest <li>
+  let card, face;
   const node = evt.target;
-  console.log(node.nodeName);
 
   switch (node.nodeName.toLowerCase()) {
     case 'li':
       card = node;
+      face = node.firstChild;
       break;
     case 'svg':
       card = node.parentNode;
+      face = node;
       break;
     case 'path':
       const gramp = node.parentNode.parentNode;
       if (gramp.classList.contains('open')) {
         card = gramp;
+        face = node.parentNode;
       }
   }
 
   // Did not click inside an <li> so do nothing
   if (!card) return;
 
-  showCard(card);
+  showCard(card, face);
 }
 
 /**
