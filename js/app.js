@@ -63,6 +63,16 @@ const cardPairs = document.querySelector('#cardPairs');
 // Game board container
 const gameBoard = document.querySelector('.board');
 
+// Container for number of attempts made
+const attemptsMade = document.querySelector('.attempts');
+
+// Array to hold info about the last two cards clicked
+let cardsOpen = [];
+
+// Counters for number of attempts to match a pair of cards
+let countAttempts = 0;
+let countMatches = 0;
+
 /**
  * Generate a random integer between <tt>min</tt> and <tt>max</tt>
  * to use for selecting a card's face and color, and its placement
@@ -102,7 +112,7 @@ function selectCards() {
     card = {
       style: shuffledCards[i].split(' ')[0],
       icon: shuffledCards[i].split(' ')[1],
-      color: cardColors[randomInteger(0, 3)],
+      color: cardColors[randomInteger(0, cardColors.length - 1)],
       pairNumber: i
     };
     cards.push(card); // 1st card of the pair
@@ -123,14 +133,12 @@ function makeGameBoard() {
 
   for (let i = 0; i < cards.length; i++) {
     spanElem = document.createElement('span');
-    spanElem.dataset.pairNumber = cards[i].pairNumber;
-    spanElem.classList.add(cards[i].style, cards[i].icon);
-    spanElem.classList.add('hide');
+    spanElem.classList.add('hide', cards[i].style, cards[i].icon);
 
     liElem = document.createElement('li');
-    liElem.dataset.pairNumber = cards[i].pairNumber;
     liElem.classList.add('card', cards[i].color);
-    //liElem.addEventListener('click', cardClicked);
+    liElem.dataset.pairNumber = cards[i].pairNumber;
+    liElem.dataset.index = i;
     liElem.appendChild(spanElem);
 
     fragment.appendChild(liElem);
@@ -142,44 +150,106 @@ function makeGameBoard() {
   gameBoard.addEventListener('click', cardClicked);
 }
 
+function resetCounts() {
+  countAttempts = 0;
+  countMatches = 0;
+  attemptsMade.textContent = countAttempts;
+}
+
 /**
  * if the card face is hidden, show it
  * if it's visible, hide it
  */
-function showCard(card, face) {
+function toggleCard(card) {
+  'use strict';
   card.classList.toggle('open');
-  card.classList.toggle('show');
-  face.classList.toggle('hide');
+  card.firstChild.classList.toggle('hide');
+}
+
+function showCardFace(card) {
+  'use strict';
+  card.classList.add('open');
+  card.firstChild.classList.remove('hide');
+}
+
+function hideCardFace(card) {
+  'use strict';
+  card.classList.remove('open');
+  card.firstChild.classList.add('hide');
+}
+
+function removeCard(card) {
+  'use strict';
+  card.classList.add('hide');
+  card.classList.remove('open');
+}
+
+/**
+ * Save the two cards opened during this turn
+ */
+function saveCard(card) {
+  'use strict';
+  if (cardsOpen.length < 2) {
+    cardsOpen.push(card);
+  }
+}
+
+/**
+ * Compare the two cards opened during this turn.
+ * Consider it a successful match if two cards were opened (the player didn't
+ * just click on the same card twice) and the faces on the two cards match
+ */
+function compareCards() {
+  'use strict';
+  if (cardsOpen.length === 2) {
+
+    if (cardsOpen[0].dataset.index !== cardsOpen[1].dataset.index &&
+        cardsOpen[0].dataset.pairNumber === cardsOpen[1].dataset.pairNumber) {
+      cardsOpen.forEach(function(card) {
+        setTimeout(removeCard, 500, card);
+      });
+      countMatches++;
+    } else {
+      cardsOpen.forEach(function(card) {
+        setTimeout(hideCardFace, 500, card);
+      });
+    }
+
+    cardsOpen = [];
+    attemptsMade.textContent = ++countAttempts;
+  }
 }
 
 /**
  * user has clicked on a card
  */
 function cardClicked(evt) {
-  let card, face;
+  'use strict';
+  let card;
   const node = evt.target;
 
+  // Font Awesome 5 changes the <li><span></span></li> to
+  // an <li><svg><path></path></svg></li>
+  // so we need to test what the user actually clicked on
   switch (node.nodeName.toLowerCase()) {
     case 'li':
       card = node;
-      face = node.firstChild;
       break;
     case 'svg':
       card = node.parentNode;
-      face = node;
       break;
     case 'path':
-      const gramp = node.parentNode.parentNode;
-      if (gramp.classList.contains('open')) {
-        card = gramp;
-        face = node.parentNode;
-      }
+      card = node.parentNode.parentNode;
   }
 
   // Did not click inside an <li> so do nothing
   if (!card) return;
 
-  showCard(card, face);
+  saveCard(card);
+  if (cardsOpen.length <= 2) {
+    showCardFace(card);
+    compareCards();
+  }
 }
 
 /**
@@ -187,5 +257,6 @@ function cardClicked(evt) {
  */
 document.querySelector('#sizePicker').addEventListener('submit', function (evt) {
   evt.preventDefault();
+  resetCounts()
   makeGameBoard();
 });

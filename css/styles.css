@@ -79,11 +79,8 @@ body {
 .board .card.open {
   transform: rotateY(0);
   background: #ffe4e1;
-  cursor: default;
-}
-
-.board .card.show {
   font-size: 4em;
+  cursor: default;
 }
 
 .hide {
