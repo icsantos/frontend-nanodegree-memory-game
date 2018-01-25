@@ -63,15 +63,17 @@ const cardPairs = document.querySelector('#cardPairs');
 // Game board container
 const gameBoard = document.querySelector('.board');
 
-// Container for number of attempts made
+// Number of attempts made to match a pair of cards
 const attemptsMade = document.querySelector('.attempts');
+let countAttempts = 0;
+
+// Number of pairs of cards already matched
+const matchesMade = document.querySelector('.matches');
+let countMatches = 0;
 
 // Array to hold info about the last two cards clicked
 let cardsOpen = [];
 
-// Counters for number of attempts to match a pair of cards
-let countAttempts = 0;
-let countMatches = 0;
 
 /**
  * Generate a random integer between <tt>min</tt> and <tt>max</tt>
@@ -108,7 +110,7 @@ function selectCards() {
   let shuffledCards = shuffleArray(cardFaces);
   let cards = [], card;
 
-  for (let i = 0; i < cardPairs.value; i++) {
+  for (let i = 0; i < cardPairs.valueAsNumber; i++) {
     card = {
       style: shuffledCards[i].split(' ')[0],
       icon: shuffledCards[i].split(' ')[1],
@@ -154,16 +156,23 @@ function resetCounts() {
   countAttempts = 0;
   countMatches = 0;
   attemptsMade.textContent = countAttempts;
+  matchesMade.textContent = countMatches;
 }
 
 /**
  * if the card face is hidden, show it
  * if it's visible, hide it
  */
-function toggleCard(card) {
+function showCard(card) {
   'use strict';
-  card.classList.toggle('open');
-  card.firstChild.classList.toggle('hide');
+  card.classList.add('open');
+  card.classList.remove('hide');
+}
+
+function removeCard(card) {
+  'use strict';
+  card.classList.add('hide');
+  card.classList.remove('open');
 }
 
 function showCardFace(card) {
@@ -176,12 +185,6 @@ function hideCardFace(card) {
   'use strict';
   card.classList.remove('open');
   card.firstChild.classList.add('hide');
-}
-
-function removeCard(card) {
-  'use strict';
-  card.classList.add('hide');
-  card.classList.remove('open');
 }
 
 /**
@@ -205,10 +208,12 @@ function compareCards() {
 
     if (cardsOpen[0].dataset.index !== cardsOpen[1].dataset.index &&
         cardsOpen[0].dataset.pairNumber === cardsOpen[1].dataset.pairNumber) {
-      cardsOpen.forEach(function(card) {
-        setTimeout(removeCard, 500, card);
-      });
-      countMatches++;
+      matchesMade.textContent = ++countMatches;
+      if (countMatches !== cardPairs.valueAsNumber) {
+        cardsOpen.forEach(function(card) {
+          setTimeout(removeCard, 500, card);
+        });
+      }
     } else {
       cardsOpen.forEach(function(card) {
         setTimeout(hideCardFace, 500, card);
@@ -217,6 +222,16 @@ function compareCards() {
 
     cardsOpen = [];
     attemptsMade.textContent = ++countAttempts;
+  }
+}
+
+/**
+ * user has found all pairs
+ */
+function celebrate() {
+  const cards = document.querySelectorAll('li.card');
+  for (let card of cards) {
+    showCard(card);
   }
 }
 
@@ -249,6 +264,9 @@ function cardClicked(evt) {
   if (cardsOpen.length <= 2) {
     showCardFace(card);
     compareCards();
+    if (countMatches === cardPairs.valueAsNumber) {
+      celebrate();
+    }
   }
 }
 
