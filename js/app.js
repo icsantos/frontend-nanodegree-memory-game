@@ -9,12 +9,11 @@ const cardFaces = [
   'fas fa-balance-scale',
   'fas fa-bell',
   'fas fa-bicycle',
+  'fas fa-birthday-cake',
   'fas fa-bug',
   'fas fa-bullhorn',
-  'fas fa-bullseye',
   'fas fa-camera',
   'fas fa-child',
-  'fas fa-circle',
   'fas fa-cut',
   'fas fa-desktop',
   'fas fa-envelope',
@@ -22,6 +21,7 @@ const cardFaces = [
   'fas fa-flag',
   'fas fa-flask',
   'fas fa-gem',
+  'fas fa-gift',
   'fas fa-heart',
   'fas fa-home',
   'fas fa-key',
@@ -65,15 +65,64 @@ const gameBoard = document.querySelector('.board');
 
 // Number of attempts made to match a pair of cards
 const attemptsMade = document.querySelector('.attempts');
-let countAttempts = 0;
-
-// Number of pairs of cards already matched
-const matchesMade = document.querySelector('.matches');
-let countMatches = 0;
 
 // Array to hold info about the last two cards clicked
 let cardsOpen = [];
 
+// Array to hold player's best stats for each 'number of pairs'
+let playerBest = [];
+
+playerBest.init = function() {
+  'use strict';
+  for (let i = 0; i < cardFaces.length; i++) {
+    playerBest[i] = {
+      moves: 1000,
+      stars: 0,
+      timeHr: 1000,
+      timeMin: 1000,
+      timeSec: 1000
+    };
+  }
+};
+
+playerBest.update = function() {
+  'use strict';
+  let bestForPairs = playerBest[cardPairs.valueAsNumber];
+  if (bestForPairs.moves > currentGame.moves) {
+    bestForPairs.moves = currentGame.moves;
+  }
+  if (bestForPairs.stars < currentGame.stars) {
+    bestForPairs.stars = currentGame.stars;
+  }
+};
+
+// Object to hold current game stats
+let currentGame = {};
+
+currentGame.init = function() {
+  'use strict';
+  currentGame.moves = 0;
+  currentGame.stars = 3;
+  currentGame.timeHr = 0;
+  currentGame.timeMin = 0;
+  currentGame.timeSec = 0;
+  currentGame.matches = 0;
+};
+
+currentGame.updStars = function() {
+  'use strict';
+  const degreeOfDifficulty = Math.ceil(cardPairs.valueAsNumber / 10);
+  const rate = currentGame.moves / cardPairs.valueAsNumber;
+  if (rate <= 2.0 * degreeOfDifficulty) {
+    currentGame.stars = 3;
+  } else if (rate <= 3.0 * degreeOfDifficulty) {
+    currentGame.stars = 2;
+  } else if (rate <= 4.0 * degreeOfDifficulty) {
+    currentGame.stars = 1;
+  } else {
+    currentGame.stars = 0;
+  }
+};
 
 /**
  * Generate a random integer between <tt>min</tt> and <tt>max</tt>
@@ -120,7 +169,7 @@ function selectCards() {
     cards.push(card); // 1st card of the pair
     cards.push(card); // 2nd card of the pair
   }
-  return shuffleArray(shuffleArray(cards));
+  return shuffleArray(shuffleArray(shuffleArray(cards)));
 }
 
 /**
@@ -153,10 +202,8 @@ function makeGameBoard() {
 }
 
 function resetCounts() {
-  countAttempts = 0;
-  countMatches = 0;
-  attemptsMade.textContent = countAttempts;
-  matchesMade.textContent = countMatches;
+  currentGame.init();
+  attemptsMade.textContent = currentGame.moves;
 }
 
 /**
@@ -187,6 +234,14 @@ function hideCardFace(card) {
   card.firstChild.classList.add('hide');
 }
 
+function addSpin(card) {
+  card.classList.add('fa-spin');
+}
+
+function stopSpin(card) {
+  card.classList.remove('fa-spin');
+}
+
 /**
  * Save the two cards opened during this turn
  */
@@ -208,8 +263,7 @@ function compareCards() {
 
     if (cardsOpen[0].dataset.index !== cardsOpen[1].dataset.index &&
         cardsOpen[0].dataset.pairNumber === cardsOpen[1].dataset.pairNumber) {
-      matchesMade.textContent = ++countMatches;
-      if (countMatches !== cardPairs.valueAsNumber) {
+      if (++currentGame.matches !== cardPairs.valueAsNumber) {
         cardsOpen.forEach(function(card) {
           setTimeout(removeCard, 500, card);
         });
@@ -221,7 +275,7 @@ function compareCards() {
     }
 
     cardsOpen = [];
-    attemptsMade.textContent = ++countAttempts;
+    attemptsMade.textContent = ++currentGame.moves;
   }
 }
 
@@ -229,9 +283,13 @@ function compareCards() {
  * user has found all pairs
  */
 function celebrate() {
+  gameBoard.removeEventListener('click', cardClicked);
+
   const cards = document.querySelectorAll('li.card');
   for (let card of cards) {
+    addSpin(card);
     showCard(card);
+    setTimeout(stopSpin, 5000, card);
   }
 }
 
@@ -264,7 +322,9 @@ function cardClicked(evt) {
   if (cardsOpen.length <= 2) {
     showCardFace(card);
     compareCards();
-    if (countMatches === cardPairs.valueAsNumber) {
+    currentGame.updStars();
+    if (currentGame.matches === cardPairs.valueAsNumber) {
+      playerBest.update();
       celebrate();
     }
   }
@@ -278,3 +338,6 @@ document.querySelector('#sizePicker').addEventListener('submit', function (evt) 
   resetCounts()
   makeGameBoard();
 });
+
+playerBest.init();
+currentGame.init();

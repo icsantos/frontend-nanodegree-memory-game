@@ -19,11 +19,22 @@
     </form>
 
     <section class="score">
-      You have found <span class="matches">0</span> pairs
-      in <span class="attempts">0</span> attempts!
+      <ul class="game stars">
+        <li><span class="fas fa-star" data-index="1"></span></li>
+        <li><span class="fas fa-star" data-index="2"></span></li>
+        <li><span class="fas fa-star" data-index="3"></span></li>
+      </ul>
+
+      <ul class="game clock">
+        <li><span class="clock-hours">00</span></li>
+        <li><span class="clock-minutes">00</span></li>
+        <li><span class="clock-seconds">00</span></li>
+      </ul>
+
+      Moves: <span class="attempts">0</span>
     </section>
 
-    <ul class="board fa-ul"></ul>
+    <ul class="board"></ul>
   </div>
 
   <script defer src="https://use.fontawesome.com/releases/v5.0.4/js/all.js"></script>
