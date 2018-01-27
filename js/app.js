@@ -129,6 +129,7 @@ playerBest.display = function() {
     bestScore.stats.classList.add('hide');
   } else {
     bestScore.moves.textContent = bestForPairs.moves;
+    showStars(bestScore, bestForPairs.stars);
     bestScore.stats.classList.remove('hide');
   }
 };
@@ -149,17 +150,27 @@ currentGame.init = function() {
 currentGame.updStars = function() {
   'use strict';
   const degreeOfDifficulty = Math.ceil(cardPairs.valueAsNumber / 10);
-  const rate = currentGame.moves / cardPairs.valueAsNumber;
-  if (rate <= 2.0 * degreeOfDifficulty) {
+  const rate = (currentGame.moves / cardPairs.valueAsNumber) / degreeOfDifficulty;
+  if (rate <= 2.0) {
     currentGame.stars = 3;
-  } else if (rate <= 3.0 * degreeOfDifficulty) {
+  } else if (rate <= 3.0) {
     currentGame.stars = 2;
-  } else if (rate <= 4.0 * degreeOfDifficulty) {
+  } else if (rate <= 4.0) {
     currentGame.stars = 1;
   } else {
     currentGame.stars = 0;
   }
 };
+
+function showStars(node, count) {
+  const stars = node.querySelector('.stars').querySelectorAll('li');
+  for (let i = 0; i < count; i++) {
+    stars[i].classList.remove('hide');
+  }
+  for (let i = count; i < stars.length; i++) {
+    stars[i].classList.add('hide');
+  }
+}
 
 /**
  * Generate a random integer between <tt>min</tt> and <tt>max</tt>
@@ -238,9 +249,11 @@ function makeGameBoard() {
   gameBoard.addEventListener('click', cardClicked);
 }
 
-function resetCounts() {
+function resetGame() {
   currentGame.init();
   gameScore.moves.textContent = currentGame.moves;
+  showStars(gameScore, 3);
+  playerBest.display();
 }
 
 /**
@@ -326,7 +339,7 @@ function celebrate() {
   for (let card of cards) {
     addSpin(card);
     showCard(card);
-    setTimeout(stopSpin, 5000, card);
+    setTimeout(stopSpin, 4000, card);
   }
 }
 
@@ -360,6 +373,7 @@ function cardClicked(evt) {
     showCardFace(card);
     compareCards();
     currentGame.updStars();
+    showStars(gameScore, currentGame.stars);
     if (currentGame.matches === cardPairs.valueAsNumber) {
       playerBest.update();
       playerBest.display();
@@ -373,9 +387,8 @@ function cardClicked(evt) {
  */
 document.querySelector('#sizePicker').addEventListener('submit', function (evt) {
   evt.preventDefault();
-  resetCounts()
+  resetGame()
   makeGameBoard();
-  playerBest.display();
 });
 
 playerBest.init();
