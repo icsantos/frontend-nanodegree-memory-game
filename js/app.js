@@ -63,8 +63,14 @@ const cardPairs = document.querySelector('#cardPairs');
 // Game board container
 const gameBoard = document.querySelector('.board');
 
-// Number of attempts made to match a pair of cards
-const attemptsMade = document.querySelector('.attempts');
+// Current game statistics
+const gameScore = document.querySelector('.game');
+gameScore.moves = gameScore.querySelector('.moves');
+
+// Player best statistics
+const bestScore = document.querySelector('.best');
+bestScore.stats = bestScore.querySelector('.stats');
+bestScore.moves = bestScore.querySelector('.moves');
 
 // Array to hold info about the last two cards clicked
 let cardsOpen = [];
@@ -80,7 +86,8 @@ playerBest.init = function() {
       stars: 0,
       timeHr: 1000,
       timeMin: 1000,
-      timeSec: 1000
+      timeSec: 1000,
+      gamesPlayed: 0
     };
   }
 };
@@ -88,11 +95,41 @@ playerBest.init = function() {
 playerBest.update = function() {
   'use strict';
   let bestForPairs = playerBest[cardPairs.valueAsNumber];
-  if (bestForPairs.moves > currentGame.moves) {
+  if (bestForPairs.gamesPlayed === 0) {
     bestForPairs.moves = currentGame.moves;
-  }
-  if (bestForPairs.stars < currentGame.stars) {
     bestForPairs.stars = currentGame.stars;
+    bestForPairs.timeHr = currentGame.timeHr;
+    bestForPairs.timeMin = currentGame.timeMin;
+    bestForPairs.timeSec = currentGame.timeSec;
+  } else {
+    if (bestForPairs.moves > currentGame.moves) {
+      bestForPairs.moves = currentGame.moves;
+    }
+    if (bestForPairs.stars < currentGame.stars) {
+      bestForPairs.stars = currentGame.stars;
+    }
+    if (bestForPairs.timeHr > currentGame.timeHr) {
+      bestForPairs.timeHr = currentGame.timeHr;
+      bestForPairs.timeMin = currentGame.timeMin;
+      bestForPairs.timeSec = currentGame.timeSec;
+    } else if (bestForPairs.timeMin > currentGame.timeMin) {
+      bestForPairs.timeMin = currentGame.timeMin;
+      bestForPairs.timeSec = currentGame.timeSec;
+    } else if (bestForPairs.timeSec > currentGame.timeSec) {
+      bestForPairs.timeSec = currentGame.timeSec;
+    }
+  }
+  bestForPairs.gamesPlayed++;
+};
+
+playerBest.display = function() {
+  'use strict';
+  let bestForPairs = playerBest[cardPairs.valueAsNumber];
+  if (bestForPairs.gamesPlayed === 0) {
+    bestScore.stats.classList.add('hide');
+  } else {
+    bestScore.moves.textContent = bestForPairs.moves;
+    bestScore.stats.classList.remove('hide');
   }
 };
 
@@ -203,7 +240,7 @@ function makeGameBoard() {
 
 function resetCounts() {
   currentGame.init();
-  attemptsMade.textContent = currentGame.moves;
+  gameScore.moves.textContent = currentGame.moves;
 }
 
 /**
@@ -275,7 +312,7 @@ function compareCards() {
     }
 
     cardsOpen = [];
-    attemptsMade.textContent = ++currentGame.moves;
+    gameScore.moves.textContent = ++currentGame.moves;
   }
 }
 
@@ -325,6 +362,7 @@ function cardClicked(evt) {
     currentGame.updStars();
     if (currentGame.matches === cardPairs.valueAsNumber) {
       playerBest.update();
+      playerBest.display();
       celebrate();
     }
   }
@@ -337,6 +375,7 @@ document.querySelector('#sizePicker').addEventListener('submit', function (evt) 
   evt.preventDefault();
   resetCounts()
   makeGameBoard();
+  playerBest.display();
 });
 
 playerBest.init();

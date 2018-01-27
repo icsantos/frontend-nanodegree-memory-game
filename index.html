@@ -4,6 +4,7 @@
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
   <meta charset="UTF-8">
   <title>Memory Game</title>
+  <link rel="stylesheet prefetch" href="https://fonts.googleapis.com/css?family=Noto+Serif|Roboto+Mono">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -19,19 +20,39 @@
     </form>
 
     <section class="score">
-      <ul class="game stars">
-        <li><span class="fas fa-star" data-index="1"></span></li>
-        <li><span class="fas fa-star" data-index="2"></span></li>
-        <li><span class="fas fa-star" data-index="3"></span></li>
-      </ul>
+      <section class="game">
+        <header>
+          <h2>GAME</h2>
+        </header>
+        <section class="stats">
+          <p><span class="moves">0</span> moves</p>
+          <ul class="stars">
+            <li><span class="fas fa-star" data-index="1">&nbsp;</span></li>
+            <li><span class="fas fa-star" data-index="2">&nbsp;</span></li>
+            <li><span class="fas fa-star" data-index="3">&nbsp;</span></li>
+          </ul>
+          <p class="clock">
+            <span class="clock-hours">00</span>:<span class="clock-minutes">00</span>:<span class="clock-seconds">00</span>
+          </p>
+        </section>
+      </section>
 
-      <ul class="game clock">
-        <li><span class="clock-hours">00</span></li>
-        <li><span class="clock-minutes">00</span></li>
-        <li><span class="clock-seconds">00</span></li>
-      </ul>
-
-      Moves: <span class="attempts">0</span>
+      <section class="best">
+        <header>
+          <h2>BEST</h2>
+        </header>
+        <section class="stats hide">
+          <p><span class="moves">0</span> moves</p>
+          <ul class="stars">
+            <li><span class="fas fa-star" data-index="1">&nbsp;</span></li>
+            <li><span class="fas fa-star" data-index="2">&nbsp;</span></li>
+            <li><span class="fas fa-star" data-index="3">&nbsp;</span></li>
+          </ul>
+          <p class="clock">
+            <span class="clock-hours">00</span>:<span class="clock-minutes">00</span>:<span class="clock-seconds">00</span>
+          </p>
+        </section>
+      </section>
     </section>
 
     <ul class="board"></ul>

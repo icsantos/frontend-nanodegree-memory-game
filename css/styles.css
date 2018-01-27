@@ -19,6 +19,7 @@ body {
 body {
   background-color: #dbe5e2;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%2362e7c3' fill-opacity='1' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+  font-family: 'Noto Serif', serif;
 }
 
 .container {
@@ -26,6 +27,72 @@ body {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+}
+
+/*
+  Styles for the scores
+*/
+.score {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+}
+
+.score h2 {
+  margin: 2px;
+  font-size: 1.25em;
+}
+
+.score p {
+  margin: 2px;
+}
+
+.game,
+.best {
+  height: 125px;
+  width: 125px;
+  border-radius: 10px;
+  box-shadow: 12px 15px 20px 0 rgba(46, 61, 73, 0.5);
+  padding: 10px;
+  margin: 0 5px;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.game {
+  background-color: #02ccba;
+}
+
+.best {
+  background-color: #aa7ecd;
+}
+
+.stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.stars {
+  padding: 0;
+  margin: 2px 0;
+  display: inline-block;
+}
+
+.stars li {
+  margin: 0;
+  list-style: none;
+  display: inline-block;
+}
+
+.clock {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 1em;
 }
 
 /*
