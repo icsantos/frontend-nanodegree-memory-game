@@ -75,6 +75,10 @@ bestScore.moves = bestScore.querySelector('.moves');
 // Array to hold info about the last two cards clicked
 let cardsOpen = [];
 
+// Variable to hold game timer
+let gameTimer;
+let timerStarted = false;
+
 // Array to hold player's best stats for each 'number of pairs'
 let playerBest = [];
 
@@ -132,6 +136,7 @@ playerBest.display = function() {
     showStars(bestScore, bestForPairs.stars);
     bestScore.stats.classList.remove('hide');
   }
+  showTime(bestScore, bestForPairs);
 };
 
 // Object to hold current game stats
@@ -170,6 +175,52 @@ function showStars(node, count) {
   for (let i = count; i < stars.length; i++) {
     stars[i].classList.add('hide');
   }
+}
+
+function showTime(node, time) {
+  const clock = node.querySelector('.clock');
+
+  const clockHr = clock.querySelector('.clock-hours');
+  const timeHr = (time.timeHr > 9 ? time.timeHr : "0" + time.timeHr);
+  if (clockHr.textContent !== timeHr) {
+    clockHr.textContent = timeHr;
+  }
+
+  const clockMin = clock.querySelector('.clock-minutes');
+  const timeMin = (time.timeMin > 9 ? time.timeMin : "0" + time.timeMin);
+  if (clockMin.textContent !== timeMin) {
+    clockMin.textContent = timeMin;
+  }
+
+  const clockSec = clock.querySelector('.clock-seconds');
+  const timeSec = (time.timeSec > 9 ? time.timeSec : "0" + time.timeSec);
+  if (clockSec.textContent !== timeSec) {
+    clockSec.textContent = timeSec;
+  }
+}
+
+function timerTick() {
+  currentGame.timeSec++;
+  if (currentGame.timeSec >= 60) {
+      currentGame.timeSec = 0;
+      currentGame.timeMin++;
+      if (currentGame.timeMin >= 60) {
+          currentGame.timeMin = 0;
+          currentGame.timeHr++;
+      }
+  }
+  showTime(gameScore, currentGame);
+  startTimer();
+}
+
+function startTimer() {
+  timerStarted = true;
+  gameTimer = setTimeout(timerTick, 1000);
+}
+
+function stopTimer() {
+  timerStarted = false;
+  clearTimeout(gameTimer);
 }
 
 /**
@@ -253,6 +304,7 @@ function resetGame() {
   currentGame.init();
   gameScore.moves.textContent = currentGame.moves;
   showStars(gameScore, 3);
+  showTime(gameScore, currentGame);
   playerBest.display();
 }
 
@@ -368,6 +420,10 @@ function cardClicked(evt) {
   // Did not click inside an <li> so do nothing
   if (!card) return;
 
+  if (timerStarted === false) {
+    startTimer();
+  }
+
   saveCard(card);
   if (cardsOpen.length <= 2) {
     showCardFace(card);
@@ -375,6 +431,7 @@ function cardClicked(evt) {
     currentGame.updStars();
     showStars(gameScore, currentGame.stars);
     if (currentGame.matches === cardPairs.valueAsNumber) {
+      stopTimer();
       playerBest.update();
       playerBest.display();
       celebrate();
