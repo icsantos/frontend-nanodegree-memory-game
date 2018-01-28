@@ -102,6 +102,10 @@ playerBest.init = function() {
   }
 };
 
+function timeToSeconds(time) {
+  return time.timeHr * 60 + time.timeMin * 60 + time.timeSec;
+}
+
 playerBest.update = function() {
   'use strict';
   let bestForPairs = playerBest[cardPairsValue];
@@ -123,16 +127,9 @@ playerBest.update = function() {
       bestForPairs.stars = currentGame.stars;
       playerBestUpdated = true;
     }
-    if (bestForPairs.timeHr > currentGame.timeHr) {
+    if (timeToSeconds(bestForPairs) > timeToSeconds(currentGame)) {
       bestForPairs.timeHr = currentGame.timeHr;
       bestForPairs.timeMin = currentGame.timeMin;
-      bestForPairs.timeSec = currentGame.timeSec;
-      playerBestUpdated = true;
-    } else if (bestForPairs.timeMin > currentGame.timeMin) {
-      bestForPairs.timeMin = currentGame.timeMin;
-      bestForPairs.timeSec = currentGame.timeSec;
-      playerBestUpdated = true;
-    } else if (bestForPairs.timeSec > currentGame.timeSec) {
       bestForPairs.timeSec = currentGame.timeSec;
       playerBestUpdated = true;
     }
