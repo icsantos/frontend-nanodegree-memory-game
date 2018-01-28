@@ -481,8 +481,8 @@ function windowOnClick(evt) {
  */
 document.querySelector('#sizePicker').addEventListener('submit', function (evt) {
   evt.preventDefault();
-  resetGame()
   cardPairsValue = Number(cardPairs.value);
+  resetGame()
   makeGameBoard();
 });
 
