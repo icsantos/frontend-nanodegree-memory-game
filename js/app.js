@@ -167,9 +167,9 @@ currentGame.updStars = function() {
   'use strict';
   const degreeOfDifficulty = Math.ceil(cardPairsValue / 10);
   const rate = (currentGame.moves / cardPairsValue) / degreeOfDifficulty;
-  if (rate <= 1.5) {
+  if (rate <= 1.75) {
     currentGame.stars = 3;
-  } else if (rate <= 2.0) {
+  } else if (rate <= 2.50) {
     currentGame.stars = 2;
   } else {
     currentGame.stars = 1;
