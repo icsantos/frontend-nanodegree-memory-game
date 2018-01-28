@@ -73,6 +73,10 @@ const bestScore = document.querySelector('.best');
 bestScore.stats = bestScore.querySelector('.stats');
 bestScore.moves = bestScore.querySelector('.moves');
 
+// Modal window after completion of game
+const modal = document.querySelector('.modal');
+const modalCloseBtn = document.querySelector('.close-button');
+
 // Array to hold info about the last two cards clicked
 let cardsOpen = [];
 
@@ -82,6 +86,7 @@ let timerStarted = false;
 
 // Array to hold player's best stats for each 'number of pairs'
 let playerBest = [];
+let playerBestUpdated = false;
 
 playerBest.init = function() {
   'use strict';
@@ -100,28 +105,36 @@ playerBest.init = function() {
 playerBest.update = function() {
   'use strict';
   let bestForPairs = playerBest[cardPairsValue];
+  playerBestUpdated = false;
+
   if (bestForPairs.gamesPlayed === 0) {
     bestForPairs.moves = currentGame.moves;
     bestForPairs.stars = currentGame.stars;
     bestForPairs.timeHr = currentGame.timeHr;
     bestForPairs.timeMin = currentGame.timeMin;
     bestForPairs.timeSec = currentGame.timeSec;
+    playerBestUpdated = true;
   } else {
     if (bestForPairs.moves > currentGame.moves) {
       bestForPairs.moves = currentGame.moves;
+      playerBestUpdated = true;
     }
     if (bestForPairs.stars < currentGame.stars) {
       bestForPairs.stars = currentGame.stars;
+      playerBestUpdated = true;
     }
     if (bestForPairs.timeHr > currentGame.timeHr) {
       bestForPairs.timeHr = currentGame.timeHr;
       bestForPairs.timeMin = currentGame.timeMin;
       bestForPairs.timeSec = currentGame.timeSec;
+      playerBestUpdated = true;
     } else if (bestForPairs.timeMin > currentGame.timeMin) {
       bestForPairs.timeMin = currentGame.timeMin;
       bestForPairs.timeSec = currentGame.timeSec;
+      playerBestUpdated = true;
     } else if (bestForPairs.timeSec > currentGame.timeSec) {
       bestForPairs.timeSec = currentGame.timeSec;
+      playerBestUpdated = true;
     }
   }
   bestForPairs.gamesPlayed++;
@@ -386,15 +399,31 @@ function compareCards() {
 /**
  * user has found all pairs
  */
-function celebrate() {
-  gameBoard.removeEventListener('click', cardClicked);
+function toggleModal() {
+  'use strict';
+  modal.classList.toggle('hide');
+}
 
+function celebrate() {
+  'use strict';
   const cards = document.querySelectorAll('li.card');
   for (let card of cards) {
     addSpin(card);
     showCard(card);
     setTimeout(stopSpin, 4000, card);
   }
+}
+
+function congratulate() {
+  'use strict';
+  const time = gameScore.querySelector('.clock').innerText;
+  const newBest = playerBestUpdated ? ' You achieved a new best!' : '';
+  const heading = playerBestUpdated ? 'Congratulations!' : 'Bravo!';
+  const message = `A ${currentGame.stars}-star accomplishment with a time of ${time}!${newBest}`;
+
+  document.querySelector('.modal-heading').textContent = heading;
+  document.querySelector('.modal-message').textContent = message;
+  toggleModal();
 }
 
 /**
@@ -433,11 +462,20 @@ function cardClicked(evt) {
     currentGame.updStars();
     showStars(gameScore, currentGame.stars);
     if (currentGame.matches === cardPairsValue) {
+      gameBoard.removeEventListener('click', cardClicked);
       stopTimer();
       playerBest.update();
       playerBest.display();
       celebrate();
+      congratulate();
     }
+  }
+}
+
+function windowOnClick(evt) {
+  'use strict';
+  if (evt.target === modal) {
+    toggleModal();
   }
 }
 
@@ -450,6 +488,9 @@ document.querySelector('#sizePicker').addEventListener('submit', function (evt) 
   cardPairsValue = Number(cardPairs.value);
   makeGameBoard();
 });
+
+modalCloseBtn.addEventListener('click', toggleModal);
+window.addEventListener('click', windowOnClick);
 
 playerBest.init();
 currentGame.init();

@@ -65,6 +65,7 @@ In the real-life game, players flip over cards to locate the pairs that match. T
 
 -   [Font Awesome](https://fontawesome.com/), for the vector icons
 -   [Hero Patterns](http://www.heropatterns.com/), for the SVG background patterns
+-   [How To Create a Modal Popup Box with CSS and JavaScript](https://sabe.io/tutorials/how-to-create-modal-popup-box)
 
 ## Contributing
 
