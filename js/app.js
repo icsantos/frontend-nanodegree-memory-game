@@ -59,6 +59,7 @@ const cardColors = [
 
 // Input for how many pairs of cards
 const cardPairs = document.querySelector('#cardPairs');
+let cardPairsValue = Number(cardPairs.value);
 
 // Game board container
 const gameBoard = document.querySelector('.board');
@@ -98,7 +99,7 @@ playerBest.init = function() {
 
 playerBest.update = function() {
   'use strict';
-  let bestForPairs = playerBest[cardPairs.valueAsNumber];
+  let bestForPairs = playerBest[cardPairsValue];
   if (bestForPairs.gamesPlayed === 0) {
     bestForPairs.moves = currentGame.moves;
     bestForPairs.stars = currentGame.stars;
@@ -128,7 +129,7 @@ playerBest.update = function() {
 
 playerBest.display = function() {
   'use strict';
-  let bestForPairs = playerBest[cardPairs.valueAsNumber];
+  let bestForPairs = playerBest[cardPairsValue];
   if (bestForPairs.gamesPlayed === 0) {
     bestScore.stats.classList.add('hide');
   } else {
@@ -154,16 +155,14 @@ currentGame.init = function() {
 
 currentGame.updStars = function() {
   'use strict';
-  const degreeOfDifficulty = Math.ceil(cardPairs.valueAsNumber / 10);
-  const rate = (currentGame.moves / cardPairs.valueAsNumber) / degreeOfDifficulty;
-  if (rate <= 2.0) {
+  const degreeOfDifficulty = Math.ceil(cardPairsValue / 10);
+  const rate = (currentGame.moves / cardPairsValue) / degreeOfDifficulty;
+  if (rate <= 1.5) {
     currentGame.stars = 3;
-  } else if (rate <= 3.0) {
+  } else if (rate <= 2.0) {
     currentGame.stars = 2;
-  } else if (rate <= 4.0) {
-    currentGame.stars = 1;
   } else {
-    currentGame.stars = 0;
+    currentGame.stars = 1;
   }
 };
 
@@ -258,7 +257,7 @@ function selectCards() {
   let shuffledCards = shuffleArray(cardFaces);
   let cards = [], card;
 
-  for (let i = 0; i < cardPairs.valueAsNumber; i++) {
+  for (let i = 0; i < cardPairsValue; i++) {
     card = {
       style: shuffledCards[i].split(' ')[0],
       icon: shuffledCards[i].split(' ')[1],
@@ -365,7 +364,7 @@ function compareCards() {
 
     if (cardsOpen[0].dataset.index !== cardsOpen[1].dataset.index &&
         cardsOpen[0].dataset.pairNumber === cardsOpen[1].dataset.pairNumber) {
-      if (++currentGame.matches !== cardPairs.valueAsNumber) {
+      if (++currentGame.matches !== cardPairsValue) {
         cardsOpen.forEach(function(card) {
           setTimeout(removeCard, 500, card);
         });
@@ -376,8 +375,11 @@ function compareCards() {
       });
     }
 
+    // increment moves only if the two cards are different
+    if (cardsOpen[0].dataset.index !== cardsOpen[1].dataset.index) {
+      gameScore.moves.textContent = ++currentGame.moves;
+    }
     cardsOpen = [];
-    gameScore.moves.textContent = ++currentGame.moves;
   }
 }
 
@@ -430,7 +432,7 @@ function cardClicked(evt) {
     compareCards();
     currentGame.updStars();
     showStars(gameScore, currentGame.stars);
-    if (currentGame.matches === cardPairs.valueAsNumber) {
+    if (currentGame.matches === cardPairsValue) {
       stopTimer();
       playerBest.update();
       playerBest.display();
@@ -445,6 +447,7 @@ function cardClicked(evt) {
 document.querySelector('#sizePicker').addEventListener('submit', function (evt) {
   evt.preventDefault();
   resetGame()
+  cardPairsValue = Number(cardPairs.value);
   makeGameBoard();
 });
 
