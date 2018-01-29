@@ -90,7 +90,9 @@ let playerBestUpdated = false;
 
 playerBest.init = function() {
   'use strict';
-  for (let i = 0; i < cardFaces.length; i++) {
+  const minPairs = Number(cardPairs.min);
+  const maxPairs = Number(cardPairs.max);
+  for (let i = minPairs; i <= maxPairs; i++) {
     playerBest[i] = {
       moves: 1000,
       stars: 0,
