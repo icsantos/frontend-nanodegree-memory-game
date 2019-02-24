@@ -84,6 +84,67 @@ let cardsOpen = [];
 let gameTimer;
 let timerStarted = false;
 
+/*
+   Utility functions
+*/
+
+/**
+ * Converts time in hours, minutes and seconds to seconds
+ * @param {{timeHr: number, timeMin: number, timeSec: number}} time Object containing the time elapsed
+ * @returns {number} Number of seconds elapsed
+ */
+function timeToSeconds(time) {
+  return time.timeHr * 60 + time.timeMin * 60 + time.timeSec;
+}
+
+/**
+ * Generate a random integer to use for
+ * selecting a card's face and color, and its placement
+ * on the game board.
+ * @param {number} min The lower boundary
+ * @param {number} max The upper boundary
+ * @returns {number} An integer within the specified boundaries
+ */
+function randomInteger(min, max) {
+  'use strict';
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+/**
+ * Shuffles the contents of a one-dimensional array
+ *
+ * [Source: comment by BetonMAN on Nov 29, 2017]{@link https://gist.github.com/guilhermepontes/17ae0cc71fa2b13ea8c20c94c5c35dc4}
+ * @param {array} sourceArray A one-dimensional array
+ * @returns {array} The shuffled array
+ */
+function shuffleArray(sourceArray) {
+  'use strict';
+  return sourceArray.map((a) => [Math.random(),a]).sort((a,b) => a[0]-b[0]).map((a) => a[1]);
+}
+
+/**
+ * Selects the cards to use in the current game
+ * @returns {string[]} An array of objects.  Each object contains the CSS
+ * classes that represent the card faces and colors to use in the current game.
+ */
+function selectCards() {
+  'use strict';
+  let shuffledCards = shuffleArray(cardFaces);
+  let cards = [], card;
+
+  for (let i = 0; i < cardPairsValue; i++) {
+    card = {
+      style: shuffledCards[i].split(' ')[0],
+      icon: shuffledCards[i].split(' ')[1],
+      color: cardColors[randomInteger(0, cardColors.length - 1)],
+      pairNumber: i
+    };
+    cards.push(card); // 1st card of the pair
+    cards.push(card); // 2nd card of the pair
+  }
+  return shuffleArray(shuffleArray(shuffleArray(cards)));
+}
+
 // Array to hold player's best stats for each 'number of pairs'
 let playerBest = [];
 let playerBestUpdated = false;
@@ -103,15 +164,6 @@ playerBest.init = function() {
     };
   }
 };
-
-/**
- * Converts time in hours, minutes and seconds to seconds
- * @param {{timeHr: number, timeMin: number, timeSec: number}} time Object containing the time elapsed
- * @returns {number} Number of seconds elapsed
- */
-function timeToSeconds(time) {
-  return time.timeHr * 60 + time.timeMin * 60 + time.timeSec;
-}
 
 playerBest.update = function() {
   'use strict';
@@ -237,54 +289,6 @@ function startTimer() {
 function stopTimer() {
   timerStarted = false;
   clearTimeout(gameTimer);
-}
-
-/**
- * Generate a random integer to use for
- * selecting a card's face and color, and its placement
- * on the game board.
- * @param {number} min The lower boundary
- * @param {number} max The upper boundary
- * @returns {number} An integer within the specified boundaries
- */
-function randomInteger(min, max) {
-  'use strict';
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-/**
- * Shuffles the contents of a one-dimensional array
- *
- * [Source: comment by BetonMAN on Nov 29, 2017]{@link https://gist.github.com/guilhermepontes/17ae0cc71fa2b13ea8c20c94c5c35dc4}
- * @param {array} sourceArray A one-dimensional array
- * @returns {array} The shuffled array
- */
-function shuffleArray(sourceArray) {
-  'use strict';
-  return sourceArray.map((a) => [Math.random(),a]).sort((a,b) => a[0]-b[0]).map((a) => a[1]);
-}
-
-/**
- * Selects the cards to use in the current game
- * @returns {string[]} An array of objects.  Each object contains the CSS
- * classes that represent the card faces and colors to use in the current game.
- */
-function selectCards() {
-  'use strict';
-  let shuffledCards = shuffleArray(cardFaces);
-  let cards = [], card;
-
-  for (let i = 0; i < cardPairsValue; i++) {
-    card = {
-      style: shuffledCards[i].split(' ')[0],
-      icon: shuffledCards[i].split(' ')[1],
-      color: cardColors[randomInteger(0, cardColors.length - 1)],
-      pairNumber: i
-    };
-    cards.push(card); // 1st card of the pair
-    cards.push(card); // 2nd card of the pair
-  }
-  return shuffleArray(shuffleArray(shuffleArray(cards)));
 }
 
 /**
