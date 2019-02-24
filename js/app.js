@@ -104,6 +104,11 @@ playerBest.init = function() {
   }
 };
 
+/**
+ * Converts time in hours, minutes and seconds to seconds
+ * @param {{timeHr: number, timeMin: number, timeSec: number}} time Object containing the time elapsed
+ * @returns {number} Number of seconds elapsed
+ */
 function timeToSeconds(time) {
   return time.timeHr * 60 + time.timeMin * 60 + time.timeSec;
 }
@@ -235,12 +240,12 @@ function stopTimer() {
 }
 
 /**
- * Generate a random integer between <tt>min</tt> and <tt>max</tt>
- * to use for selecting a card's face and color, and its placement
+ * Generate a random integer to use for
+ * selecting a card's face and color, and its placement
  * on the game board.
- * @param {number} min - The lower bound.
- * @param {number} max - The upper bound.
- * @returns {number}
+ * @param {number} min The lower boundary
+ * @param {number} max The upper boundary
+ * @returns {number} An integer within the specified boundaries
  */
 function randomInteger(min, max) {
   'use strict';
@@ -249,10 +254,10 @@ function randomInteger(min, max) {
 
 /**
  * Shuffles the contents of a one-dimensional array
- * Source: comment by BetonMAN on Nov 29, 2017
- * in https://gist.github.com/guilhermepontes/17ae0cc71fa2b13ea8c20c94c5c35dc4
- * @param {array} sourceArray
- * @returns {array}
+ *
+ * [Source: comment by BetonMAN on Nov 29, 2017]{@link https://gist.github.com/guilhermepontes/17ae0cc71fa2b13ea8c20c94c5c35dc4}
+ * @param {array} sourceArray A one-dimensional array
+ * @returns {array} The shuffled array
  */
 function shuffleArray(sourceArray) {
   'use strict';
@@ -260,9 +265,9 @@ function shuffleArray(sourceArray) {
 }
 
 /**
- * Generate an array of objects containing the classes representing
- * the card faces and colors to use in the current game
- * @returns {string[]}
+ * Selects the cards to use in the current game
+ * @returns {string[]} An array of objects.  Each object contains the CSS
+ * classes that represent the card faces and colors to use in the current game.
  */
 function selectCards() {
   'use strict';
