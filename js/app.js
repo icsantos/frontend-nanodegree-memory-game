@@ -348,78 +348,99 @@ function stopTimer() {
   clearTimeout(gameTimer);
 }
 
+
 /**
- * Set up the game board
+ *  Object containing the game board
  */
-function makeGameBoard() {
-  'use strict';
-  let cards = selectCards();
-  let liElem, spanElem;
+const board = {};
+
+/**
+ *  Set up the game board
+ *  @returns {undefined} No return value
+ */
+board.init = function() {
+  const cards = selectCards();
 
   const fragment = document.createDocumentFragment();
+  let liElem = {};
+  let spanElem = {};
 
-  for (let i = 0; i < cards.length; i++) {
+  for (let idx = 0; idx < cards.length; idx++) {
     spanElem = document.createElement('span');
-    spanElem.classList.add('hide', cards[i].style, cards[i].icon);
+    spanElem.classList.add('hide', cards[idx].style, cards[idx].icon);
 
     liElem = document.createElement('li');
-    liElem.classList.add('card', cards[i].color);
-    liElem.dataset.pairNumber = cards[i].pairNumber;
-    liElem.dataset.index = i;
+    liElem.classList.add('card', cards[idx].color);
+    liElem.dataset.pairNumber = cards[idx].pairNumber;
+    liElem.dataset.index = idx;
     liElem.appendChild(spanElem);
 
     fragment.appendChild(liElem);
   }
 
-  // remove existing cards then add the new cards
+  // Remove existing cards then add the new cards
   gameBoard.innerHTML = '';
   gameBoard.appendChild(fragment);
   gameBoard.addEventListener('click', cardClicked);
-}
-
-function resetGame() {
-  currentGame.init();
-  gameScore.moves.textContent = currentGame.moves;
-  showStars(gameScore, 3);
-  showTime(gameScore, currentGame.time);
-  playerBest.display();
-}
+};
 
 /**
- * if the card face is hidden, show it
- * if it's visible, hide it
+ * Show the card on the board
+ * @param {Object} card A card element
+ * @returns {undefined} No return value
  */
-function showCard(card) {
-  'use strict';
+board.showCard = function (card) {
   card.classList.add('open');
   card.classList.remove('hide');
-}
+};
 
-function removeCard(card) {
-  'use strict';
+/**
+ * Hide the card from the board
+ * @param {Object} card A card element
+ * @returns {undefined} No return value
+ */
+board.removeCard = function (card) {
   card.classList.add('hide');
   card.classList.remove('open');
-}
+};
 
-function showCardFace(card) {
-  'use strict';
+/**
+ * Show the card face on the card
+ * @param {Object} card A card element
+ * @returns {undefined} No return value
+ */
+board.showCardFace = function (card) {
   card.classList.add('open');
   card.firstChild.classList.remove('hide');
-}
+};
 
-function hideCardFace(card) {
-  'use strict';
+/**
+ * Hide the card face from the card
+ * @param {Object} card A card element
+ * @returns {undefined} No return value
+ */
+board.hideCardFace = function (card) {
   card.classList.remove('open');
   card.firstChild.classList.add('hide');
-}
+};
 
-function addSpin(card) {
+/**
+ * Spin the card
+ * @param {Object} card A card element
+ * @returns {undefined} No return value
+ */
+board.addSpin = function (card) {
   card.classList.add('fa-spin');
-}
+};
 
-function stopSpin(card) {
+/**
+ * Stop spinning the card
+ * @param {Object} card A card element
+ * @returns {undefined} No return value
+ */
+board.stopSpin = function (card) {
   card.classList.remove('fa-spin');
-}
+};
 
 /**
  * Save the two cards opened during this turn
@@ -444,12 +465,12 @@ function compareCards() {
         cardsOpen[0].dataset.pairNumber === cardsOpen[1].dataset.pairNumber) {
       if (++currentGame.matches !== cardPairsValue) {
         cardsOpen.forEach(function(card) {
-          setTimeout(removeCard, 500, card);
+          setTimeout(board.removeCard, 500, card);
         });
       }
     } else {
       cardsOpen.forEach(function(card) {
-        setTimeout(hideCardFace, 500, card);
+        setTimeout(board.hideCardFace, 500, card);
       });
     }
 
@@ -473,9 +494,9 @@ function celebrate() {
   'use strict';
   const cards = document.querySelectorAll('li.card');
   for (let card of cards) {
-    addSpin(card);
-    showCard(card);
-    setTimeout(stopSpin, 4000, card);
+    board.addSpin(card);
+    board.showCard(card);
+    setTimeout(board.stopSpin, 4000, card);
   }
 }
 
@@ -522,7 +543,7 @@ function cardClicked(evt) {
 
   saveCard(card);
   if (cardsOpen.length <= 2) {
-    showCardFace(card);
+    board.showCardFace(card);
     compareCards();
     currentGame.updStars();
     showStars(gameScore, currentGame.stars);
@@ -544,6 +565,14 @@ function windowOnClick(evt) {
   }
 }
 
+function resetGame() {
+  currentGame.init();
+  gameScore.moves.textContent = currentGame.moves;
+  showStars(gameScore, 3);
+  showTime(gameScore, currentGame.time);
+  playerBest.display();
+}
+
 /**
  * When number of card pairs is submitted by the user, call makeGameBoard()
  */
@@ -551,7 +580,7 @@ document.querySelector('#sizePicker').addEventListener('submit', function (evt) 
   evt.preventDefault();
   cardPairsValue = Number(cardPairs.value);
   resetGame();
-  makeGameBoard();
+  board.init();
 });
 
 modalCloseBtn.addEventListener('click', toggleModal);
