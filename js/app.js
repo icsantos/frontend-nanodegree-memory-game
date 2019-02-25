@@ -171,7 +171,59 @@ function selectCards() {
 }
 
 /**
- * Object to hold current game statistics
+ *  Object to hold methods common to both current game statistics
+ *  and player's best statistics for the 'number of pairs'
+ */
+const score = {};
+
+/** Update the number of stars displayed
+ *  @param {Object} node Either the `gameScore` or the `bestScore` element
+ *  @param {number} count The number of stars earned
+ *  @returns {undefined} No return value
+*/
+score.showStars = function (node, count) {
+  const stars = node.querySelector('.stars').querySelectorAll('li');
+
+  for (let idx = 0; idx < count; idx++) {
+    stars[idx].classList.remove('hide');
+  }
+  for (let idx = count; idx < stars.length; idx++) {
+    stars[idx].classList.add('hide');
+  }
+};
+
+/** Update the number of stars displayed
+ *  @param {Object} node Either the `gameScore` or the `bestScore` element
+ *  @param {Object} time The time elapsed
+ *  @returns {undefined} No return value
+*/
+score.showTime = function (node, time) {
+  const clock = node.querySelector('.clock');
+
+  const clockHr = clock.querySelector('.clock-hours');
+  const timeHr = time.hours.toString().padStart(2, '0');
+
+  if (clockHr.textContent !== timeHr) {
+    clockHr.textContent = timeHr;
+  }
+
+  const clockMin = clock.querySelector('.clock-minutes');
+  const timeMin = time.minutes.toString().padStart(2, '0');
+
+  if (clockMin.textContent !== timeMin) {
+    clockMin.textContent = timeMin;
+  }
+
+  const clockSec = clock.querySelector('.clock-seconds');
+  const timeSec = time.seconds.toString().padStart(2, '0');
+
+  if (clockSec.textContent !== timeSec) {
+    clockSec.textContent = timeSec;
+  }
+};
+
+/**
+ *  Object to hold current game statistics
  */
 const currentGame = {};
 
@@ -294,47 +346,15 @@ playerBest.display = function() {
     bestScore.stats.classList.add('hide');
   } else {
     bestScore.moves.textContent = bestForPairs.moves;
-    showStars(bestScore, bestForPairs.stars);
+    score.showStars(bestScore, bestForPairs.stars);
     bestScore.stats.classList.remove('hide');
   }
-  showTime(bestScore, bestForPairs.time);
+  score.showTime(bestScore, bestForPairs.time);
 };
-
-function showStars(node, count) {
-  const stars = node.querySelector('.stars').querySelectorAll('li');
-  for (let i = 0; i < count; i++) {
-    stars[i].classList.remove('hide');
-  }
-  for (let i = count; i < stars.length; i++) {
-    stars[i].classList.add('hide');
-  }
-}
-
-function showTime(node, time) {
-  const clock = node.querySelector('.clock');
-
-  const clockHr = clock.querySelector('.clock-hours');
-  const timeHr = (time.hours > 9 ? time.hours : "0" + time.hours);
-  if (clockHr.textContent !== timeHr) {
-    clockHr.textContent = timeHr;
-  }
-
-  const clockMin = clock.querySelector('.clock-minutes');
-  const timeMin = (time.minutes > 9 ? time.minutes : "0" + time.minutes);
-  if (clockMin.textContent !== timeMin) {
-    clockMin.textContent = timeMin;
-  }
-
-  const clockSec = clock.querySelector('.clock-seconds');
-  const timeSec = (time.seconds > 9 ? time.seconds : "0" + time.seconds);
-  if (clockSec.textContent !== timeSec) {
-    clockSec.textContent = timeSec;
-  }
-}
 
 function timerTick() {
   currentGame.updTime();
-  showTime(gameScore, currentGame.time);
+  score.showTime(gameScore, currentGame.time);
   startTimer();
 }
 
@@ -546,7 +566,7 @@ function cardClicked(evt) {
     board.showCardFace(card);
     compareCards();
     currentGame.updStars();
-    showStars(gameScore, currentGame.stars);
+    score.showStars(gameScore, currentGame.stars);
     if (currentGame.matches === cardPairsValue) {
       gameBoard.removeEventListener('click', cardClicked);
       stopTimer();
@@ -568,13 +588,13 @@ function windowOnClick(evt) {
 function resetGame() {
   currentGame.init();
   gameScore.moves.textContent = currentGame.moves;
-  showStars(gameScore, 3);
-  showTime(gameScore, currentGame.time);
+  score.showStars(gameScore, 3);
+  score.showTime(gameScore, currentGame.time);
   playerBest.display();
 }
 
 /**
- * When number of card pairs is submitted by the user, call makeGameBoard()
+ * When number of card pairs is submitted by the user, start a new game
  */
 document.querySelector('#sizePicker').addEventListener('submit', function (evt) {
   evt.preventDefault();
