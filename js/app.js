@@ -210,26 +210,33 @@ currentGame.updStars = function() {
 */
 currentGame.updTime = function() {
   currentGame.time.seconds++;
-  if (currentGame.time.seconds >= 60) {
+  if (currentGame.time.seconds >= SEC_PER_MIN) {
       currentGame.time.seconds = 0;
       currentGame.time.minutes++;
-      if (currentGame.time.minutes >= 60) {
+      if (currentGame.time.minutes >= MIN_PER_HR) {
           currentGame.time.minutes = 0;
           currentGame.time.hours++;
       }
   }
 };
 
-// Array to hold player's best stats for each 'number of pairs'
-let playerBest = [];
-let playerBestUpdated = false;
+/**
+ *  Object to hold player's best stats for each 'number of pairs'
+ */
+const playerBest = {};
 
+/** Initializes the player's best stats to their default values
+ *  @returns {undefined} No return value
+*/
 playerBest.init = function() {
-  'use strict';
+  playerBest.updated = false;
+  playerBest.stats = [];
+
   const minPairs = Number(cardPairs.min);
   const maxPairs = Number(cardPairs.max);
-  for (let i = minPairs; i <= maxPairs; i++) {
-    playerBest[i] = {
+
+  for (let idx = minPairs; idx <= maxPairs; idx++) {
+    playerBest.stats[idx] = {
       'moves': 1000,
       'stars': 0,
       'time': {
@@ -242,10 +249,14 @@ playerBest.init = function() {
   }
 };
 
+/** Updates the player's best stats for the 'number of pairs'
+ *  after a game is completed
+ *  @returns {undefined} No return value
+*/
 playerBest.update = function() {
-  'use strict';
-  let bestForPairs = playerBest[cardPairsValue];
-  playerBestUpdated = false;
+  const bestForPairs = playerBest.stats[cardPairsValue];
+
+  playerBest.updated = false;
 
   if (bestForPairs.gamesPlayed === 0) {
     bestForPairs.moves = currentGame.moves;
@@ -253,29 +264,32 @@ playerBest.update = function() {
     bestForPairs.time.hours = currentGame.time.hours;
     bestForPairs.time.minutes = currentGame.time.minutes;
     bestForPairs.time.seconds = currentGame.time.seconds;
-    playerBestUpdated = true;
+    playerBest.updated = true;
   } else {
     if (bestForPairs.moves > currentGame.moves) {
       bestForPairs.moves = currentGame.moves;
-      playerBestUpdated = true;
+      playerBest.updated = true;
     }
     if (bestForPairs.stars < currentGame.stars) {
       bestForPairs.stars = currentGame.stars;
-      playerBestUpdated = true;
+      playerBest.updated = true;
     }
     if (timeToSeconds(bestForPairs.time) > timeToSeconds(currentGame.time)) {
       bestForPairs.time.hours = currentGame.time.hours;
       bestForPairs.time.minutes = currentGame.time.minutes;
       bestForPairs.time.seconds = currentGame.time.seconds;
-      playerBestUpdated = true;
+      playerBest.updated = true;
     }
   }
   bestForPairs.gamesPlayed++;
 };
 
+/** Displays the player's best stats to the screen
+ *  @returns {undefined} No return value
+*/
 playerBest.display = function() {
-  'use strict';
-  let bestForPairs = playerBest[cardPairsValue];
+  const bestForPairs = playerBest.stats[cardPairsValue];
+
   if (bestForPairs.gamesPlayed === 0) {
     bestScore.stats.classList.add('hide');
   } else {
@@ -468,8 +482,8 @@ function celebrate() {
 function congratulate() {
   'use strict';
   const time = gameScore.querySelector('.clock').innerText;
-  const newBest = playerBestUpdated ? ' You achieved a new best!' : '';
-  const heading = playerBestUpdated ? 'Congratulations!' : 'Bravo!';
+  const newBest = playerBest.updated ? ' You achieved a new best!' : '';
+  const heading = playerBest.updated ? 'Congratulations!' : 'Bravo!';
   const message = `A ${currentGame.stars}-star accomplishment with a time of ${time}!${newBest}`;
 
   document.querySelector('.modal-heading').textContent = heading;
