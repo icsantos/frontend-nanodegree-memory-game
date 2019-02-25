@@ -171,10 +171,13 @@ function selectCards() {
 }
 
 /**
- Object to hold current game statistics
+ * Object to hold current game statistics
  */
 const currentGame = {};
 
+/** Initializes the current game statistics to their default values
+ *  @returns {undefined} No return value
+*/
 currentGame.init = function() {
   currentGame.moves = 0;
   currentGame.stars = 3;
@@ -186,6 +189,9 @@ currentGame.init = function() {
   currentGame.matches = 0;
 };
 
+/** Update the number of stars earned during the current game
+ *  @returns {undefined} No return value
+*/
 currentGame.updStars = function() {
   const degreeOfDifficulty = Math.ceil(cardPairsValue / 10);
   const rate = (currentGame.moves / cardPairsValue) / degreeOfDifficulty;
@@ -196,6 +202,21 @@ currentGame.updStars = function() {
     currentGame.stars = 2;
   } else {
     currentGame.stars = 1;
+  }
+};
+
+/** Updates the time elapsed during the current game
+ *  @returns {undefined} No return value
+*/
+currentGame.updTime = function() {
+  currentGame.time.seconds++;
+  if (currentGame.time.seconds >= 60) {
+      currentGame.time.seconds = 0;
+      currentGame.time.minutes++;
+      if (currentGame.time.minutes >= 60) {
+          currentGame.time.minutes = 0;
+          currentGame.time.hours++;
+      }
   }
 };
 
@@ -298,15 +319,7 @@ function showTime(node, time) {
 }
 
 function timerTick() {
-  currentGame.time.seconds++;
-  if (currentGame.time.seconds >= 60) {
-      currentGame.time.seconds = 0;
-      currentGame.time.minutes++;
-      if (currentGame.time.minutes >= 60) {
-          currentGame.time.minutes = 0;
-          currentGame.time.hours++;
-      }
-  }
+  currentGame.updTime();
   showTime(gameScore, currentGame.time);
   startTimer();
 }
