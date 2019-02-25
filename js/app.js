@@ -88,10 +88,6 @@ const modalCloseBtn = document.querySelector('.close-button');
 // Array to hold info about the last two cards clicked
 let cardsOpen = [];
 
-// Variable to hold game timer
-let gameTimer;
-let timerStarted = false;
-
 /*
    Utility functions
 */
@@ -239,6 +235,33 @@ currentGame.init = function() {
     'seconds': 0
   };
   currentGame.matches = 0;
+  currentGame.timerStarted = false;
+  currentGame.timerTimeoutId = 0;
+};
+
+/** Update and display the time elapsed during the current game
+ *  @returns {undefined} No return value
+*/
+currentGame.timerTick = function () {
+  currentGame.updTime();
+  score.showTime(gameScore, currentGame.time);
+  currentGame.startTimer();
+};
+
+/** Player opened the first card of the game - start the game timer
+ *  @returns {undefined} No return value
+*/
+currentGame.startTimer = function () {
+  currentGame.timerStarted = true;
+  currentGame.timerTimeoutId = setTimeout(currentGame.timerTick, 1000);
+};
+
+/** Player found all the pairs - stop the game timer
+ *  @returns {undefined} No return value
+*/
+currentGame.stopTimer = function () {
+  currentGame.timerStarted = false;
+  clearTimeout(currentGame.timerTimeoutId);
 };
 
 /** Update the number of stars earned during the current game
@@ -351,23 +374,6 @@ playerBest.display = function() {
   }
   score.showTime(bestScore, bestForPairs.time);
 };
-
-function timerTick() {
-  currentGame.updTime();
-  score.showTime(gameScore, currentGame.time);
-  startTimer();
-}
-
-function startTimer() {
-  timerStarted = true;
-  gameTimer = setTimeout(timerTick, 1000);
-}
-
-function stopTimer() {
-  timerStarted = false;
-  clearTimeout(gameTimer);
-}
-
 
 /**
  *  Object containing the game board
@@ -557,8 +563,8 @@ function cardClicked(evt) {
   // Did not click inside an <li> so do nothing
   if (!card) return;
 
-  if (timerStarted === false) {
-    startTimer();
+  if (currentGame.timerStarted === false) {
+    currentGame.startTimer();
   }
 
   saveCard(card);
@@ -569,7 +575,7 @@ function cardClicked(evt) {
     score.showStars(gameScore, currentGame.stars);
     if (currentGame.matches === cardPairsValue) {
       gameBoard.removeEventListener('click', cardClicked);
-      stopTimer();
+      currentGame.stopTimer();
       playerBest.update();
       playerBest.display();
       celebrate();
