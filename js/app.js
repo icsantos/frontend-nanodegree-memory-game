@@ -147,13 +147,11 @@ function shuffleArray(sourceArray) {
  * classes that represent the card faces and colors to use in the current game.
  */
 function selectCards() {
-  'use strict';
-
   const shuffledCards = shuffleArray(cardFaces);
   const cards = [];
 
   for (let idx = 0; idx < cardPairsValue; idx++) {
-    let card = {
+    const card = {
       'style': shuffledCards[idx].split(' ')[0],
       'icon': shuffledCards[idx].split(' ')[1],
       'color': cardColors[randomInteger(0, cardColors.length - 1)],
@@ -169,6 +167,32 @@ function selectCards() {
 
   return shuffleArray(shuffleArray(shuffleArray(cards)));
 }
+
+// Object to hold current game stats
+let currentGame = {};
+
+currentGame.init = function() {
+  'use strict';
+  currentGame.moves = 0;
+  currentGame.stars = 3;
+  currentGame.timeHr = 0;
+  currentGame.timeMin = 0;
+  currentGame.timeSec = 0;
+  currentGame.matches = 0;
+};
+
+currentGame.updStars = function() {
+  'use strict';
+  const degreeOfDifficulty = Math.ceil(cardPairsValue / 10);
+  const rate = (currentGame.moves / cardPairsValue) / degreeOfDifficulty;
+  if (rate <= 1.75) {
+    currentGame.stars = 3;
+  } else if (rate <= 2.50) {
+    currentGame.stars = 2;
+  } else {
+    currentGame.stars = 1;
+  }
+};
 
 // Array to hold player's best stats for each 'number of pairs'
 let playerBest = [];
@@ -232,32 +256,6 @@ playerBest.display = function() {
     bestScore.stats.classList.remove('hide');
   }
   showTime(bestScore, bestForPairs);
-};
-
-// Object to hold current game stats
-let currentGame = {};
-
-currentGame.init = function() {
-  'use strict';
-  currentGame.moves = 0;
-  currentGame.stars = 3;
-  currentGame.timeHr = 0;
-  currentGame.timeMin = 0;
-  currentGame.timeSec = 0;
-  currentGame.matches = 0;
-};
-
-currentGame.updStars = function() {
-  'use strict';
-  const degreeOfDifficulty = Math.ceil(cardPairsValue / 10);
-  const rate = (currentGame.moves / cardPairsValue) / degreeOfDifficulty;
-  if (rate <= 1.75) {
-    currentGame.stars = 3;
-  } else if (rate <= 2.50) {
-    currentGame.stars = 2;
-  } else {
-    currentGame.stars = 1;
-  }
 };
 
 function showStars(node, count) {
