@@ -57,6 +57,12 @@ const cardColors = [
   'color4'
 ];
 
+/*
+   Constants
+*/
+const MIN_PER_HR = 60;
+const SEC_PER_MIN = 60;
+
 // Input for how many pairs of cards
 const cardPairs = document.querySelector('#cardPairs');
 let cardPairsValue = Number(cardPairs.value);
@@ -94,7 +100,10 @@ let timerStarted = false;
  * @returns {number} Number of seconds elapsed
  */
 function timeToSeconds(time) {
-  return time.timeHr * 60 + time.timeMin * 60 + time.timeSec;
+  const hrsToSeconds = time.timeHr * MIN_PER_HR * SEC_PER_MIN;
+  const minToSeconds = time.timeMin * SEC_PER_MIN;
+
+  return hrsToSeconds + minToSeconds + time.timeSec;
 }
 
 /**
@@ -106,20 +115,30 @@ function timeToSeconds(time) {
  * @returns {number} An integer within the specified boundaries
  */
 function randomInteger(min, max) {
-  'use strict';
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 /**
  * Shuffles the contents of a one-dimensional array
+ * - Turn each element into an array [random number, element]
+ * - sort by the random number
+ * - return the original element
  *
- * [Source: comment by BetonMAN on Nov 29, 2017]{@link https://gist.github.com/guilhermepontes/17ae0cc71fa2b13ea8c20c94c5c35dc4}
+ * Example
+ * - array: ```['a', 'b', 'c']```
+ * - 1st map: ```[[0.444, 'a'], [0.856, 'b'], [0.203, 'c']]```
+ * - sort: ```[[0.203, 'c'], [0.444, 'a'], [0.856, 'b']]```
+ * - 2nd map: ```['c', 'a', 'b']```
+ *
+ * [Source: Shuffle Array - JavaScript ES2015, ES6]{@link https://gist.github.com/guilhermepontes/17ae0cc71fa2b13ea8c20c94c5c35dc4}
  * @param {array} sourceArray A one-dimensional array
  * @returns {array} The shuffled array
  */
 function shuffleArray(sourceArray) {
-  'use strict';
-  return sourceArray.map((a) => [Math.random(),a]).sort((a,b) => a[0]-b[0]).map((a) => a[1]);
+  return sourceArray
+    .map((el) => [Math.random(), el])
+    .sort((r1, r2) => r1[0] - r2[0])
+    .map((el) => el[1]);
 }
 
 /**
@@ -129,19 +148,25 @@ function shuffleArray(sourceArray) {
  */
 function selectCards() {
   'use strict';
-  let shuffledCards = shuffleArray(cardFaces);
-  let cards = [], card;
 
-  for (let i = 0; i < cardPairsValue; i++) {
-    card = {
-      style: shuffledCards[i].split(' ')[0],
-      icon: shuffledCards[i].split(' ')[1],
-      color: cardColors[randomInteger(0, cardColors.length - 1)],
-      pairNumber: i
+  const shuffledCards = shuffleArray(cardFaces);
+  const cards = [];
+
+  for (let idx = 0; idx < cardPairsValue; idx++) {
+    let card = {
+      'style': shuffledCards[idx].split(' ')[0],
+      'icon': shuffledCards[idx].split(' ')[1],
+      'color': cardColors[randomInteger(0, cardColors.length - 1)],
+      'pairNumber': idx
     };
-    cards.push(card); // 1st card of the pair
-    cards.push(card); // 2nd card of the pair
+
+    // Add 1st card of the pair
+    cards.push(card);
+
+    // Add 2nd card of the pair
+    cards.push(card);
   }
+
   return shuffleArray(shuffleArray(shuffleArray(cards)));
 }
 
