@@ -72,10 +72,12 @@ const gameBoard = document.querySelector('.board');
 
 // Current game statistics
 const gameScore = document.querySelector('.game');
+
 gameScore.moves = gameScore.querySelector('.moves');
 
 // Player best statistics
 const bestScore = document.querySelector('.best');
+
 bestScore.stats = bestScore.querySelector('.stats');
 bestScore.moves = bestScore.querySelector('.moves');
 
@@ -96,14 +98,14 @@ let timerStarted = false;
 
 /**
  * Converts time in hours, minutes and seconds to seconds
- * @param {{timeHr: number, timeMin: number, timeSec: number}} time Object containing the time elapsed
+ * @param {{hours: number, minutes: number, seconds: number}} time Object containing the time elapsed
  * @returns {number} Number of seconds elapsed
  */
 function timeToSeconds(time) {
-  const hrsToSeconds = time.timeHr * MIN_PER_HR * SEC_PER_MIN;
-  const minToSeconds = time.timeMin * SEC_PER_MIN;
+  const hrsToSeconds = time.hours * MIN_PER_HR * SEC_PER_MIN;
+  const minToSeconds = time.minutes * SEC_PER_MIN;
 
-  return hrsToSeconds + minToSeconds + time.timeSec;
+  return hrsToSeconds + minToSeconds + time.seconds;
 }
 
 /**
@@ -168,23 +170,26 @@ function selectCards() {
   return shuffleArray(shuffleArray(shuffleArray(cards)));
 }
 
-// Object to hold current game stats
-let currentGame = {};
+/**
+ Object to hold current game statistics
+ */
+const currentGame = {};
 
 currentGame.init = function() {
-  'use strict';
   currentGame.moves = 0;
   currentGame.stars = 3;
-  currentGame.timeHr = 0;
-  currentGame.timeMin = 0;
-  currentGame.timeSec = 0;
+  currentGame.time = {
+    'hours': 0,
+    'minutes': 0,
+    'seconds': 0
+  };
   currentGame.matches = 0;
 };
 
 currentGame.updStars = function() {
-  'use strict';
   const degreeOfDifficulty = Math.ceil(cardPairsValue / 10);
   const rate = (currentGame.moves / cardPairsValue) / degreeOfDifficulty;
+
   if (rate <= 1.75) {
     currentGame.stars = 3;
   } else if (rate <= 2.50) {
@@ -204,12 +209,14 @@ playerBest.init = function() {
   const maxPairs = Number(cardPairs.max);
   for (let i = minPairs; i <= maxPairs; i++) {
     playerBest[i] = {
-      moves: 1000,
-      stars: 0,
-      timeHr: 1000,
-      timeMin: 1000,
-      timeSec: 1000,
-      gamesPlayed: 0
+      'moves': 1000,
+      'stars': 0,
+      'time': {
+          'hours': 1000,
+          'minutes': 1000,
+          'seconds': 1000
+        },
+      'gamesPlayed': 0
     };
   }
 };
@@ -222,9 +229,9 @@ playerBest.update = function() {
   if (bestForPairs.gamesPlayed === 0) {
     bestForPairs.moves = currentGame.moves;
     bestForPairs.stars = currentGame.stars;
-    bestForPairs.timeHr = currentGame.timeHr;
-    bestForPairs.timeMin = currentGame.timeMin;
-    bestForPairs.timeSec = currentGame.timeSec;
+    bestForPairs.time.hours = currentGame.time.hours;
+    bestForPairs.time.minutes = currentGame.time.minutes;
+    bestForPairs.time.seconds = currentGame.time.seconds;
     playerBestUpdated = true;
   } else {
     if (bestForPairs.moves > currentGame.moves) {
@@ -235,10 +242,10 @@ playerBest.update = function() {
       bestForPairs.stars = currentGame.stars;
       playerBestUpdated = true;
     }
-    if (timeToSeconds(bestForPairs) > timeToSeconds(currentGame)) {
-      bestForPairs.timeHr = currentGame.timeHr;
-      bestForPairs.timeMin = currentGame.timeMin;
-      bestForPairs.timeSec = currentGame.timeSec;
+    if (timeToSeconds(bestForPairs.time) > timeToSeconds(currentGame.time)) {
+      bestForPairs.time.hours = currentGame.time.hours;
+      bestForPairs.time.minutes = currentGame.time.minutes;
+      bestForPairs.time.seconds = currentGame.time.seconds;
       playerBestUpdated = true;
     }
   }
@@ -255,7 +262,7 @@ playerBest.display = function() {
     showStars(bestScore, bestForPairs.stars);
     bestScore.stats.classList.remove('hide');
   }
-  showTime(bestScore, bestForPairs);
+  showTime(bestScore, bestForPairs.time);
 };
 
 function showStars(node, count) {
@@ -272,35 +279,35 @@ function showTime(node, time) {
   const clock = node.querySelector('.clock');
 
   const clockHr = clock.querySelector('.clock-hours');
-  const timeHr = (time.timeHr > 9 ? time.timeHr : "0" + time.timeHr);
+  const timeHr = (time.hours > 9 ? time.hours : "0" + time.hours);
   if (clockHr.textContent !== timeHr) {
     clockHr.textContent = timeHr;
   }
 
   const clockMin = clock.querySelector('.clock-minutes');
-  const timeMin = (time.timeMin > 9 ? time.timeMin : "0" + time.timeMin);
+  const timeMin = (time.minutes > 9 ? time.minutes : "0" + time.minutes);
   if (clockMin.textContent !== timeMin) {
     clockMin.textContent = timeMin;
   }
 
   const clockSec = clock.querySelector('.clock-seconds');
-  const timeSec = (time.timeSec > 9 ? time.timeSec : "0" + time.timeSec);
+  const timeSec = (time.seconds > 9 ? time.seconds : "0" + time.seconds);
   if (clockSec.textContent !== timeSec) {
     clockSec.textContent = timeSec;
   }
 }
 
 function timerTick() {
-  currentGame.timeSec++;
-  if (currentGame.timeSec >= 60) {
-      currentGame.timeSec = 0;
-      currentGame.timeMin++;
-      if (currentGame.timeMin >= 60) {
-          currentGame.timeMin = 0;
-          currentGame.timeHr++;
+  currentGame.time.seconds++;
+  if (currentGame.time.seconds >= 60) {
+      currentGame.time.seconds = 0;
+      currentGame.time.minutes++;
+      if (currentGame.time.minutes >= 60) {
+          currentGame.time.minutes = 0;
+          currentGame.time.hours++;
       }
   }
-  showTime(gameScore, currentGame);
+  showTime(gameScore, currentGame.time);
   startTimer();
 }
 
@@ -347,7 +354,7 @@ function resetGame() {
   currentGame.init();
   gameScore.moves.textContent = currentGame.moves;
   showStars(gameScore, 3);
-  showTime(gameScore, currentGame);
+  showTime(gameScore, currentGame.time);
   playerBest.display();
 }
 
@@ -516,12 +523,12 @@ function windowOnClick(evt) {
 document.querySelector('#sizePicker').addEventListener('submit', function (evt) {
   evt.preventDefault();
   cardPairsValue = Number(cardPairs.value);
-  resetGame()
+  resetGame();
   makeGameBoard();
 });
 
 modalCloseBtn.addEventListener('click', toggleModal);
 window.addEventListener('click', windowOnClick);
 
-playerBest.init();
 currentGame.init();
+playerBest.init();
