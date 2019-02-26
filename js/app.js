@@ -85,9 +85,6 @@ bestScore.moves = bestScore.querySelector('.moves');
 const modal = document.querySelector('.modal');
 const modalCloseBtn = document.querySelector('.close-button');
 
-// Array to hold info about the last two cards clicked
-let cardsOpen = [];
-
 /*
    Utility functions
 */
@@ -377,37 +374,10 @@ playerBest.display = function() {
 
 /**
  *  Object containing the game board
+ *  @property {Array} cardsOpen Holds info about the last two cards clicked
  */
-const board = {};
-
-/**
- *  Set up the game board
- *  @returns {undefined} No return value
- */
-board.init = function() {
-  const cards = selectCards();
-
-  const fragment = document.createDocumentFragment();
-  let liElem = {};
-  let spanElem = {};
-
-  for (let idx = 0; idx < cards.length; idx++) {
-    spanElem = document.createElement('span');
-    spanElem.classList.add('hide', cards[idx].style, cards[idx].icon);
-
-    liElem = document.createElement('li');
-    liElem.classList.add('card', cards[idx].color);
-    liElem.dataset.pairNumber = cards[idx].pairNumber;
-    liElem.dataset.index = idx;
-    liElem.appendChild(spanElem);
-
-    fragment.appendChild(liElem);
-  }
-
-  // Remove existing cards then add the new cards
-  gameBoard.innerHTML = '';
-  gameBoard.appendChild(fragment);
-  gameBoard.addEventListener('click', cardClicked);
+const board = {
+  'cardsOpen': []
 };
 
 /**
@@ -469,44 +439,144 @@ board.stopSpin = function (card) {
 };
 
 /**
- * Save the two cards opened during this turn
+ * Display all the cards on the board
+ * @returns {undefined} No return value
  */
-function saveCard(card) {
-  'use strict';
-  if (cardsOpen.length < 2) {
-    cardsOpen.push(card);
+board.showAllCards = function () {
+  const cards = document.querySelectorAll('li.card');
+
+  for (const card of cards) {
+    board.addSpin(card);
+    board.showCard(card);
+    setTimeout(board.stopSpin, 4000, card);
   }
-}
+};
+
+/**
+ * Save the two cards opened during this turn
+ * @param {Array} card The card element that was last clicked
+ * @returns {undefined} No return value
+ */
+board.saveCard = function (card) {
+  if (board.cardsOpen.length < 2) {
+    board.cardsOpen.push(card);
+  }
+};
 
 /**
  * Compare the two cards opened during this turn.
  * Consider it a successful match if two cards were opened (the player didn't
  * just click on the same card twice) and the faces on the two cards match
+ * @returns {undefined} No return value
  */
-function compareCards() {
-  'use strict';
-  if (cardsOpen.length === 2) {
+board.compareCards = function () {
+  if (board.cardsOpen.length === 2) {
 
-    if (cardsOpen[0].dataset.index !== cardsOpen[1].dataset.index &&
-        cardsOpen[0].dataset.pairNumber === cardsOpen[1].dataset.pairNumber) {
+    if (board.cardsOpen[0].dataset.index !== board.cardsOpen[1].dataset.index &&
+        board.cardsOpen[0].dataset.pairNumber === board.cardsOpen[1].dataset.pairNumber) {
       if (++currentGame.matches !== cardPairsValue) {
-        cardsOpen.forEach(function(card) {
+        board.cardsOpen.forEach(function(card) {
           setTimeout(board.removeCard, 500, card);
         });
       }
     } else {
-      cardsOpen.forEach(function(card) {
+      board.cardsOpen.forEach(function(card) {
         setTimeout(board.hideCardFace, 500, card);
       });
     }
 
-    // increment moves only if the two cards are different
-    if (cardsOpen[0].dataset.index !== cardsOpen[1].dataset.index) {
+    // Increment moves only if the two cards are different
+    if (board.cardsOpen[0].dataset.index !== board.cardsOpen[1].dataset.index) {
       gameScore.moves.textContent = ++currentGame.moves;
     }
-    cardsOpen = [];
+    board.cardsOpen = [];
   }
-}
+};
+
+/** Event handler callback for user clicking on a card
+ *  @param {Object} evt The object describing the event
+ *  @returns {undefined} No return value
+ */
+board.cardClicked = function (evt) {
+  let card = null;
+  const node = evt.target;
+
+  /* Font Awesome 5 changes the
+    <li><span></span></li> to an
+    <li><svg><path></path></svg></li>
+     so we need to test what the user actually clicked on
+  */
+  switch (node.nodeName.toLowerCase()) {
+    case 'li':
+      card = node;
+      break;
+    case 'svg':
+      card = node.parentNode;
+      break;
+    case 'path':
+      card = node.parentNode.parentNode;
+      break;
+    default:
+      //
+  }
+
+  // Did not click inside an <li> so do nothing
+  if (!card) {
+    return;
+  }
+
+  if (currentGame.timerStarted === false) {
+    currentGame.startTimer();
+  }
+
+  board.saveCard(card);
+  if (board.cardsOpen.length <= 2) {
+    board.showCardFace(card);
+    board.compareCards();
+    currentGame.updStars();
+    score.showStars(gameScore, currentGame.stars);
+
+    // All pairs have been matched
+    if (currentGame.matches === cardPairsValue) {
+      gameBoard.removeEventListener('click', board.cardClicked);
+      currentGame.stopTimer();
+      playerBest.update();
+      playerBest.display();
+      board.showAllCards();
+      congratulate();
+    }
+  }
+};
+
+/**
+ *  Set up the game board
+ *  @returns {undefined} No return value
+ */
+board.init = function() {
+  const cards = selectCards();
+
+  const fragment = document.createDocumentFragment();
+  let liElem = {};
+  let spanElem = {};
+
+  for (let idx = 0; idx < cards.length; idx++) {
+    spanElem = document.createElement('span');
+    spanElem.classList.add('hide', cards[idx].style, cards[idx].icon);
+
+    liElem = document.createElement('li');
+    liElem.classList.add('card', cards[idx].color);
+    liElem.dataset.pairNumber = cards[idx].pairNumber;
+    liElem.dataset.index = idx;
+    liElem.appendChild(spanElem);
+
+    fragment.appendChild(liElem);
+  }
+
+  // Remove existing cards then add the new cards
+  gameBoard.innerHTML = '';
+  gameBoard.appendChild(fragment);
+  gameBoard.addEventListener('click', board.cardClicked);
+};
 
 /**
  * user has found all pairs
@@ -514,16 +584,6 @@ function compareCards() {
 function toggleModal() {
   'use strict';
   modal.classList.toggle('hide');
-}
-
-function celebrate() {
-  'use strict';
-  const cards = document.querySelectorAll('li.card');
-  for (let card of cards) {
-    board.addSpin(card);
-    board.showCard(card);
-    setTimeout(board.stopSpin, 4000, card);
-  }
 }
 
 function congratulate() {
@@ -538,65 +598,11 @@ function congratulate() {
   toggleModal();
 }
 
-/**
- * user has clicked on a card
- */
-function cardClicked(evt) {
-  'use strict';
-  let card;
-  const node = evt.target;
-
-  // Font Awesome 5 changes the <li><span></span></li> to
-  // an <li><svg><path></path></svg></li>
-  // so we need to test what the user actually clicked on
-  switch (node.nodeName.toLowerCase()) {
-    case 'li':
-      card = node;
-      break;
-    case 'svg':
-      card = node.parentNode;
-      break;
-    case 'path':
-      card = node.parentNode.parentNode;
-  }
-
-  // Did not click inside an <li> so do nothing
-  if (!card) return;
-
-  if (currentGame.timerStarted === false) {
-    currentGame.startTimer();
-  }
-
-  saveCard(card);
-  if (cardsOpen.length <= 2) {
-    board.showCardFace(card);
-    compareCards();
-    currentGame.updStars();
-    score.showStars(gameScore, currentGame.stars);
-    if (currentGame.matches === cardPairsValue) {
-      gameBoard.removeEventListener('click', cardClicked);
-      currentGame.stopTimer();
-      playerBest.update();
-      playerBest.display();
-      celebrate();
-      congratulate();
-    }
-  }
-}
-
 function windowOnClick(evt) {
   'use strict';
   if (evt.target === modal) {
     toggleModal();
   }
-}
-
-function resetGame() {
-  currentGame.init();
-  gameScore.moves.textContent = currentGame.moves;
-  score.showStars(gameScore, 3);
-  score.showTime(gameScore, currentGame.time);
-  playerBest.display();
 }
 
 /**
@@ -605,7 +611,11 @@ function resetGame() {
 document.querySelector('#sizePicker').addEventListener('submit', function (evt) {
   evt.preventDefault();
   cardPairsValue = Number(cardPairs.value);
-  resetGame();
+  currentGame.init();
+  gameScore.moves.textContent = currentGame.moves;
+  score.showStars(gameScore, 3);
+  score.showTime(gameScore, currentGame.time);
+  playerBest.display();
   board.init();
 });
 
