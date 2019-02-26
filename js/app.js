@@ -373,6 +373,41 @@ playerBest.display = function() {
 };
 
 /**
+ *  Show or hide window showing final game results
+ *  @returns {undefined} No return value
+ */
+playerBest.toggleModal = function () {
+  modal.classList.toggle('hide');
+};
+
+/**
+ * Show final game statistics
+ * @returns {undefined} No return value
+ */
+playerBest.congratulate = function () {
+  const time = gameScore.querySelector('.clock').innerText;
+  const newBest = playerBest.updated ? ' You achieved a new best!' : '';
+  const heading = playerBest.updated ? 'Congratulations!' : 'Bravo!';
+  const message = `A ${currentGame.stars}-star accomplishment with a time of ${time}!${newBest}`;
+
+  document.querySelector('.modal-heading').textContent = heading;
+  document.querySelector('.modal-message').textContent = message;
+
+  playerBest.toggleModal();
+};
+
+/**
+ *  Check if user clicked inside element with class of 'modal'
+ *  @param {Object} evt The object describing the event
+ *  @returns {undefined} No return value
+ */
+ playerBest.windowOnClick = function (evt) {
+  if (evt.target === modal) {
+    playerBest.toggleModal();
+  }
+};
+
+/**
  *  Object containing the game board
  *  @property {Array} cardsOpen Holds info about the last two cards clicked
  */
@@ -543,7 +578,7 @@ board.cardClicked = function (evt) {
       playerBest.update();
       playerBest.display();
       board.showAllCards();
-      congratulate();
+      playerBest.congratulate();
     }
   }
 };
@@ -579,33 +614,6 @@ board.init = function() {
 };
 
 /**
- * user has found all pairs
- */
-function toggleModal() {
-  'use strict';
-  modal.classList.toggle('hide');
-}
-
-function congratulate() {
-  'use strict';
-  const time = gameScore.querySelector('.clock').innerText;
-  const newBest = playerBest.updated ? ' You achieved a new best!' : '';
-  const heading = playerBest.updated ? 'Congratulations!' : 'Bravo!';
-  const message = `A ${currentGame.stars}-star accomplishment with a time of ${time}!${newBest}`;
-
-  document.querySelector('.modal-heading').textContent = heading;
-  document.querySelector('.modal-message').textContent = message;
-  toggleModal();
-}
-
-function windowOnClick(evt) {
-  'use strict';
-  if (evt.target === modal) {
-    toggleModal();
-  }
-}
-
-/**
  * When number of card pairs is submitted by the user, start a new game
  */
 document.querySelector('#sizePicker').addEventListener('submit', function (evt) {
@@ -619,8 +627,8 @@ document.querySelector('#sizePicker').addEventListener('submit', function (evt) 
   board.init();
 });
 
-modalCloseBtn.addEventListener('click', toggleModal);
-window.addEventListener('click', windowOnClick);
+modalCloseBtn.addEventListener('click', playerBest.toggleModal);
+window.addEventListener('click', playerBest.windowOnClick);
 
 currentGame.init();
 playerBest.init();
