@@ -72,14 +72,12 @@ const gameBoard = document.querySelector('.board');
 
 // Current game statistics
 const gameScore = document.querySelector('.game');
-
-gameScore.moves = gameScore.querySelector('.moves');
+const gameScoreMoves = gameScore.querySelector('.moves');
 
 // Player best statistics
 const bestScore = document.querySelector('.best');
-
-bestScore.stats = bestScore.querySelector('.stats');
-bestScore.moves = bestScore.querySelector('.moves');
+const bestScoreStats = bestScore.querySelector('.stats');
+const bestScoreMoves = bestScore.querySelector('.moves');
 
 // Modal window after completion of game
 const modal = document.querySelector('.modal');
@@ -336,11 +334,11 @@ playerBest.display = function() {
   const bestForPairs = playerBest.stats[cardPairsValue];
 
   if (bestForPairs.gamesPlayed === 0) {
-    bestScore.stats.classList.add('hide');
+    bestScoreStats.classList.add('hide');
   } else {
-    bestScore.moves.textContent = bestForPairs.moves;
+    bestScoreMoves.textContent = bestForPairs.moves;
     score.showStars(bestScore, bestForPairs.stars);
-    bestScore.stats.classList.remove('hide');
+    bestScoreStats.classList.remove('hide');
   }
   score.showTime(bestScore, bestForPairs.time);
 };
@@ -413,7 +411,7 @@ board.selectCards = function () {
   }
 
   return shuffleArray(shuffleArray(shuffleArray(cards)));
-}
+};
 
 /**
  * Show the card on the board
@@ -522,7 +520,7 @@ board.compareCards = function () {
 
     // Increment moves only if the two cards are different
     if (board.cardsOpen[0].dataset.index !== board.cardsOpen[1].dataset.index) {
-      gameScore.moves.textContent = ++currentGame.moves;
+      gameScoreMoves.textContent = ++currentGame.moves;
     }
     board.cardsOpen = [];
   }
@@ -620,7 +618,7 @@ document.querySelector('#sizePicker').addEventListener('submit', function (evt) 
   evt.preventDefault();
   cardPairsValue = Number(cardPairs.value);
   currentGame.init();
-  gameScore.moves.textContent = currentGame.moves;
+  gameScoreMoves.textContent = currentGame.moves;
   score.showStars(gameScore, 3);
   score.showTime(gameScore, currentGame.time);
   playerBest.display();
