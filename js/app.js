@@ -137,33 +137,6 @@ function shuffleArray(sourceArray) {
 }
 
 /**
- * Selects the cards to use in the current game
- * @returns {string[]} An array of objects.  Each object contains the CSS
- * classes that represent the card faces and colors to use in the current game.
- */
-function selectCards() {
-  const shuffledCards = shuffleArray(cardFaces);
-  const cards = [];
-
-  for (let idx = 0; idx < cardPairsValue; idx++) {
-    const card = {
-      'style': shuffledCards[idx].split(' ')[0],
-      'icon': shuffledCards[idx].split(' ')[1],
-      'color': cardColors[randomInteger(0, cardColors.length - 1)],
-      'pairNumber': idx
-    };
-
-    // Add 1st card of the pair
-    cards.push(card);
-
-    // Add 2nd card of the pair
-    cards.push(card);
-  }
-
-  return shuffleArray(shuffleArray(shuffleArray(cards)));
-}
-
-/**
  *  Object to hold methods common to both current game statistics
  *  and player's best statistics for the 'number of pairs'
  */
@@ -416,6 +389,33 @@ const board = {
 };
 
 /**
+ * Selects the cards to use in the current game
+ * @returns {string[]} An array of objects.  Each object contains the CSS
+ * classes that represent the card faces and colors to use in the current game.
+ */
+board.selectCards = function () {
+  const shuffledCards = shuffleArray(cardFaces);
+  const cards = [];
+
+  for (let idx = 0; idx < cardPairsValue; idx++) {
+    const card = {
+      'style': shuffledCards[idx].split(' ')[0],
+      'icon': shuffledCards[idx].split(' ')[1],
+      'color': cardColors[randomInteger(0, cardColors.length - 1)],
+      'pairNumber': idx
+    };
+
+    // Add 1st card of the pair
+    cards.push(card);
+
+    // Add 2nd card of the pair
+    cards.push(card);
+  }
+
+  return shuffleArray(shuffleArray(shuffleArray(cards)));
+}
+
+/**
  * Show the card on the board
  * @param {Object} card A card element
  * @returns {undefined} No return value
@@ -588,7 +588,7 @@ board.cardClicked = function (evt) {
  *  @returns {undefined} No return value
  */
 board.init = function() {
-  const cards = selectCards();
+  const cards = board.selectCards();
 
   const fragment = document.createDocumentFragment();
   let liElem = {};
