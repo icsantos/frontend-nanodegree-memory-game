@@ -65,7 +65,6 @@ const SEC_PER_MIN = 60;
 
 // Input for how many pairs of cards
 const cardPairs = document.querySelector('#cardPairs');
-let cardPairsValue = Number(cardPairs.value);
 
 // Game board container
 const gameBoard = document.querySelector('.board');
@@ -133,6 +132,25 @@ function shuffleArray(sourceArray) {
     .sort((r1, r2) => r1[0] - r2[0])
     .map((el) => el[1]);
 }
+
+/**
+ *  Object to hold data about the number of pairs of cards
+ */
+const pairs = {
+  'toMatch': Number(cardPairs.value),
+  'minimum': Number(cardPairs.min),
+  'maximum': Number(cardPairs.max),
+  'adjSize': []
+};
+
+pairs.adjSize[0] = {
+  'class': 'smaller',
+  'count': (pairs.maximum - pairs.minimum) / 3 * 2
+};
+pairs.adjSize[1] = {
+  'class': 'small',
+  'count': (pairs.maximum - pairs.minimum) / 3
+};
 
 /**
  *  Object to hold methods common to both current game statistics
@@ -236,8 +254,8 @@ currentGame.stopTimer = function () {
  *  @returns {undefined} No return value
 */
 currentGame.updStars = function() {
-  const degreeOfDifficulty = Math.ceil(cardPairsValue / 10);
-  const rate = (currentGame.moves / cardPairsValue) / degreeOfDifficulty;
+  const degreeOfDifficulty = Math.ceil(pairs.toMatch / 10);
+  const rate = (currentGame.moves / pairs.toMatch) / degreeOfDifficulty;
 
   if (rate <= 1.75) {
     currentGame.stars = 3;
@@ -275,10 +293,7 @@ playerBest.init = function() {
   playerBest.updated = false;
   playerBest.stats = [];
 
-  const minPairs = Number(cardPairs.min);
-  const maxPairs = Number(cardPairs.max);
-
-  for (let idx = minPairs; idx <= maxPairs; idx++) {
+  for (let idx = pairs.minimum; idx <= pairs.maximum; idx++) {
     playerBest.stats[idx] = {
       'moves': 1000,
       'stars': 0,
@@ -297,7 +312,7 @@ playerBest.init = function() {
  *  @returns {undefined} No return value
 */
 playerBest.update = function() {
-  const bestForPairs = playerBest.stats[cardPairsValue];
+  const bestForPairs = playerBest.stats[pairs.toMatch];
 
   playerBest.updated = false;
 
@@ -331,7 +346,7 @@ playerBest.update = function() {
  *  @returns {undefined} No return value
 */
 playerBest.display = function() {
-  const bestForPairs = playerBest.stats[cardPairsValue];
+  const bestForPairs = playerBest.stats[pairs.toMatch];
 
   if (bestForPairs.gamesPlayed === 0) {
     bestScoreStats.classList.add('hide');
@@ -395,7 +410,7 @@ board.selectCards = function () {
   const shuffledCards = shuffleArray(cardFaces);
   const cards = [];
 
-  for (let idx = 0; idx < cardPairsValue; idx++) {
+  for (let idx = 0; idx < pairs.toMatch; idx++) {
     const card = {
       'style': shuffledCards[idx].split(' ')[0],
       'icon': shuffledCards[idx].split(' ')[1],
@@ -507,7 +522,7 @@ board.compareCards = function () {
 
     if (board.cardsOpen[0].dataset.index !== board.cardsOpen[1].dataset.index &&
         board.cardsOpen[0].dataset.pairNumber === board.cardsOpen[1].dataset.pairNumber) {
-      if (++currentGame.matches !== cardPairsValue) {
+      if (++currentGame.matches !== pairs.toMatch) {
         board.cardsOpen.forEach(function(card) {
           setTimeout(board.removeCard, 500, card);
         });
@@ -570,7 +585,7 @@ board.cardClicked = function (evt) {
     score.showStars(gameScore, currentGame.stars);
 
     // All pairs have been matched
-    if (currentGame.matches === cardPairsValue) {
+    if (currentGame.matches === pairs.toMatch) {
       gameBoard.removeEventListener('click', board.cardClicked);
       currentGame.stopTimer();
       playerBest.update();
@@ -598,6 +613,12 @@ board.init = function() {
 
     liElem = document.createElement('li');
     liElem.classList.add('card', cards[idx].color);
+    for (let sz = 0; sz < pairs.adjSize.length; sz++) {
+      if (pairs.toMatch >= pairs.adjSize[sz].count) {
+        liElem.classList.add(pairs.adjSize[sz].class);
+        break;
+      }
+    }
     liElem.dataset.pairNumber = cards[idx].pairNumber;
     liElem.dataset.index = idx;
     liElem.appendChild(spanElem);
@@ -616,7 +637,7 @@ board.init = function() {
  */
 document.querySelector('#sizePicker').addEventListener('submit', function (evt) {
   evt.preventDefault();
-  cardPairsValue = Number(cardPairs.value);
+  pairs.toMatch = Number(cardPairs.value);
   currentGame.init();
   gameScoreMoves.textContent = currentGame.moves;
   score.showStars(gameScore, 3);

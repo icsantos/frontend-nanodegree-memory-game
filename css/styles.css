@@ -146,12 +146,24 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: 4em;
+}
+
+.board .card.smaller {
+  height: 90px;
+  width: 90px;
+  font-size: 3em;
+}
+
+.board .card.small {
+  height: 108px;
+  width: 108px;
+  font-size: 3.8em;
 }
 
 .board .card.open {
   transform: rotateY(0);
   background: #ffe4e1;
-  font-size: 4em;
   cursor: default;
 }
 
@@ -204,8 +216,8 @@ body {
   .game,
   .best,
   .board .card {
-    height: 112px;
-    width: 112px;
+    height: 108px;
+    width: 108px;
   }
 }
 
@@ -216,9 +228,14 @@ body {
 
   .game,
   .best,
-  .board .card {
-    height: 100px;
-    width: 100px;
+  .board .card,
+  .board .card.small {
+    height: 90px;
+    width: 90px;
+  }
+
+  .board .card.small {
+    font-size: 4em;
   }
 }
 
