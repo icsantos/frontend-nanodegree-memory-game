@@ -134,9 +134,15 @@ body {
   align-items: center;
 }
 
+.card {
+  --card-regular: 125px;
+  --card-small: 108px;
+  --card-smaller: 90px;
+}
+
 .board .card {
-  height: 125px;
-  width: 125px;
+  height: var(--card-regular);
+  width: var(--card-regular);
   margin: 2px;
   background-color: #ffe4c4;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='32' viewBox='0 0 16 32'%3E%3Cg fill='%23f2bacb' fill-opacity='0.4'%3E%3Cpath fill-rule='evenodd' d='M0 24h4v2H0v-2zm0 4h6v2H0v-2zm0-8h2v2H0v-2zM0 0h4v2H0V0zm0 4h2v2H0V4zm16 20h-6v2h6v-2zm0 4H8v2h8v-2zm0-8h-4v2h4v-2zm0-20h-6v2h6V0zm0 4h-4v2h4V4zm-2 12h2v2h-2v-2zm0-8h2v2h-2V8zM2 8h10v2H2V8zm0 8h10v2H2v-2zm-2-4h14v2H0v-2zm4-8h6v2H4V4zm0 16h6v2H4v-2zM6 0h2v2H6V0zm0 24h2v2H6v-2z'/%3E%3C/g%3E%3C/svg%3E");
@@ -146,19 +152,16 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 4em;
 }
 
 .board .card.smaller {
-  height: 90px;
-  width: 90px;
-  font-size: 3em;
+  height: var(--card-smaller);
+  width: var(--card-smaller);
 }
 
 .board .card.small {
-  height: 108px;
-  width: 108px;
-  font-size: 3.5em;
+  height: var(--card-small);
+  width: var(--card-small);
 }
 
 .board .card.open {
@@ -216,8 +219,8 @@ body {
   .game,
   .best,
   .board .card {
-    height: 108px;
-    width: 108px;
+    height: var(--card-small);
+    width: var(--card-small);
   }
 }
 
@@ -230,12 +233,8 @@ body {
   .best,
   .board .card,
   .board .card.small {
-    height: 90px;
-    width: 90px;
-  }
-
-  .board .card.small {
-    font-size: 4em;
+    height: var(--card-smaller);
+    width: var(--card-smaller);
   }
 
   .modal-content {

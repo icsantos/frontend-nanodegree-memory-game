@@ -145,10 +145,12 @@ const pairs = {
 
 pairs.adjSize[0] = {
   'class': 'smaller',
+  'data': 'grow-30',
   'count': (pairs.maximum - pairs.minimum) / 3 * 2
 };
 pairs.adjSize[1] = {
   'class': 'small',
+  'data': 'grow-35',
   'count': (pairs.maximum - pairs.minimum) / 3
 };
 
@@ -615,12 +617,14 @@ board.init = function() {
   for (let idx = 0; idx < cards.length; idx++) {
     spanElem = document.createElement('span');
     spanElem.classList.add('hide', cards[idx].style, cards[idx].icon);
+    spanElem.dataset.faTransform = 'grow-40';
 
     liElem = document.createElement('li');
     liElem.classList.add('card', cards[idx].color);
     for (let sz = 0; sz < pairs.adjSize.length; sz++) {
       if (pairs.toMatch >= pairs.adjSize[sz].count) {
         liElem.classList.add(pairs.adjSize[sz].class);
+        spanElem.dataset.faTransform = pairs.adjSize[sz].data;
         break;
       }
     }
