@@ -221,6 +221,11 @@ currentGame.init = function() {
     'seconds': 0
   };
   currentGame.matches = 0;
+
+  if (currentGame.timerStarted) {
+    clearTimeout(currentGame.timerTimeoutId);
+  }
+
   currentGame.timerStarted = false;
   currentGame.timerTimeoutId = 0;
 };
@@ -630,6 +635,8 @@ board.init = function() {
   gameBoard.innerHTML = '';
   gameBoard.appendChild(fragment);
   gameBoard.addEventListener('click', board.cardClicked);
+
+  board.cardsOpen = [];
 };
 
 /**
